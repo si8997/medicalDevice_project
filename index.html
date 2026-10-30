@@ -3,78 +3,194 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>절차서 교육</title>
+<title>RA Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
-    --bg: #f5f6f8; --card: #ffffff; --text: #1f2328; --sub: #656d76; --line: #d8dee4;
-    --accent: #1f6feb; --accent-soft: #e7f0fd;
-    --ok: #1a7f37; --ok-soft: #e6f4ea; --bad: #cf222e; --bad-soft: #fdecee;
-    --self: #9a6700; --self-soft: #fff8e5;
+    --ink: #14233b;
+    --sub: #5b6b7f;
+    --line: #dde3ea;
+    --paper: #f5f7f9;
+    --card: #ffffff;
+    --brand: #1e4fa3;
+    --teal: #138a83;
+    --teal-soft: #e4f3f1;
+    --hero-a: #0b2034;
+    --hero-b: #0f3c49;
+    --hero-c: #0f5550;
+    --band: #c9d3dc;
+    --ok: #1a7f37; --ok-soft: #e7f5ec;
+    --bad: #c4282f; --bad-soft: #fcecee;
+    --self: #8a6100; --self-soft: #fdf6e3;
+    --header-h: 76px;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-padding-top: var(--header-h); }
   body {
     margin: 0;
-    font-family: -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-    background: var(--bg); color: var(--text); line-height: 1.6;
+    font-family: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: var(--paper); color: var(--ink); line-height: 1.65;
+    -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: break-word;
   }
-  .wrap { max-width: 980px; margin: 0 auto; }
-  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 20px 16px 0; }
-  h1 { margin: 0 0 12px; font-size: 1.35rem; }
-  .missing { color: var(--sub); font-style: italic; font-weight: normal; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  .missing { color: var(--sub); font-style: italic; font-weight: 400; }
 
-  /* 분야 탭 */
-  .areas { display: flex; gap: 4px; overflow-x: auto; }
-  .areas button {
-    border: none; background: none; padding: 10px 14px; font-size: 1rem; color: var(--sub);
-    cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; font-family: inherit;
+  /* ---------- 상단 메뉴 ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 50;
+    background: #fff; border-bottom: 1px solid var(--line);
+    height: var(--header-h);
   }
-  .areas button:hover { color: var(--text); }
-  .areas button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .bar { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .brand {
+    font-size: 1.3rem; font-weight: 700; color: var(--brand);
+    text-decoration: none; letter-spacing: -.01em; white-space: nowrap;
+  }
+  .menu { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; height: 100%; }
+  .m-item { position: relative; display: flex; align-items: center; }
+  .m-top {
+    background: none; border: 0; font: inherit; font-size: .95rem; font-weight: 500; color: var(--ink);
+    padding: 10px 14px; cursor: pointer; border-radius: 6px; white-space: nowrap;
+  }
+  .m-item.current .m-top { color: var(--brand); font-weight: 600; }
+  .m-top:hover, .m-item:focus-within .m-top { color: var(--brand); }
+  .drop {
+    list-style: none; margin: 0; padding: 8px; min-width: 200px;
+    position: absolute; top: calc(100% - 10px); left: 50%; transform: translate(-50%, 6px);
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(20, 35, 59, .14);
+    opacity: 0; visibility: hidden; transition: opacity .15s, transform .15s, visibility .15s;
+  }
+  .m-item:hover > .drop, .m-item:focus-within > .drop { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .drop a {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 9px 12px; border-radius: 6px; text-decoration: none; font-size: .93rem;
+  }
+  .drop a:hover, .drop a:focus-visible { background: var(--teal-soft); color: var(--teal); }
+  .drop .n { font-size: .8rem; color: var(--sub); }
+  .burger { display: none; background: none; border: 0; font-size: 1.35rem; color: var(--ink); padding: 8px; cursor: pointer; }
 
-  main { padding: 20px 16px 60px; }
+  @media (max-width: 900px) {
+    .burger { display: block; }
+    nav#nav {
+      position: absolute; top: var(--header-h); left: 0; right: 0;
+      background: #fff; border-bottom: 1px solid var(--line);
+      box-shadow: 0 12px 24px rgba(20, 35, 59, .12);
+      display: none; max-height: calc(100vh - var(--header-h)); overflow-y: auto;
+    }
+    nav#nav.open { display: block; }
+    .menu { flex-direction: column; height: auto; padding: 8px 12px 14px; gap: 0; }
+    .m-item { display: block; border-bottom: 1px solid var(--line); }
+    .m-item:last-child { border-bottom: 0; }
+    .m-top { width: 100%; text-align: left; padding: 14px 6px; display: flex; justify-content: space-between; }
+    .m-top::after { content: "\f107"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--sub); }
+    .m-item.open .m-top::after { content: "\f106"; }
+    .drop, .m-item:hover > .drop, .m-item:focus-within > .drop {
+      position: static; transform: none; box-shadow: none; border: 0; padding: 0 0 10px;
+      display: none; opacity: 1; visibility: visible;
+    }
+    .m-item.open > .drop { display: block; }
+  }
 
-  /* 하위 탭 */
-  .subs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  /* ---------- 히어로 ---------- */
+  .scene { position: absolute; inset: 0; overflow: hidden; background: var(--hero-a); }
+  .scene svg { width: 100%; height: 100%; display: block; }
+  .hero {
+    position: relative; min-height: calc(100vh - var(--header-h)); min-height: calc(100svh - var(--header-h));
+    display: flex; align-items: center; color: #fff; overflow: hidden;
+  }
+  .hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 50% at 50% 46%, rgba(6, 18, 30, .55), rgba(6, 18, 30, 0) 70%);
+  }
+  .hero-in { position: relative; z-index: 1; width: 100%; text-align: center; padding: 64px 20px 56px; }
+  .hero h1 {
+    margin: 0 auto; font-size: clamp(2.2rem, 6vw, 4.2rem); line-height: 1.22;
+    font-weight: 700; letter-spacing: -.025em; max-width: 14ch;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, .35);
+  }
+  .hero .lead {
+    margin: 18px auto 0; max-width: 34em; font-size: clamp(.98rem, 1.6vw, 1.1rem);
+    color: rgba(255, 255, 255, .82); font-weight: 400;
+  }
+  .shortcuts {
+    list-style: none; padding: 0; margin: clamp(48px, 9vh, 96px) auto 0;
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 32px clamp(18px, 4vw, 56px);
+  }
+  .shortcuts a {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    text-decoration: none; color: #fff; width: 124px;
+  }
+  .ring {
+    width: 88px; height: 88px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 1.85rem;
+    border: 1.5px solid rgba(255, 255, 255, .55);
+    background: rgba(255, 255, 255, .06);
+    backdrop-filter: blur(4px);
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+  .shortcuts a:hover .ring, .shortcuts a:focus-visible .ring {
+    background: rgba(255, 255, 255, .16); border-color: #fff; transform: translateY(-3px);
+  }
+  .shortcuts .label { font-size: .93rem; font-weight: 600; line-height: 1.35; text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.4); }
+
+  /* ---------- 분야 페이지 ---------- */
+  .band { position: relative; color: #fff; overflow: hidden; }
+  .band .wrap { position: relative; z-index: 1; padding-top: 44px; padding-bottom: 40px; display: flex; align-items: center; gap: 18px; }
+  .band .ring { width: 64px; height: 64px; font-size: 1.4rem; flex: none; }
+  .band h1 { margin: 0; font-size: clamp(1.5rem, 3.4vw, 2.2rem); letter-spacing: -.02em; line-height: 1.3; }
+  .band p { margin: 2px 0 0; color: rgba(255,255,255,.75); font-size: .95rem; }
+
+  .body { padding-top: 24px; padding-bottom: 72px; }
+  .subs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
   .subs button {
-    border: 1px solid var(--line); background: var(--card); color: var(--text);
-    padding: 6px 14px; border-radius: 999px; font-size: .95rem; cursor: pointer; font-family: inherit;
+    border: 0; background: none; font: inherit; font-size: .98rem; color: var(--sub);
+    padding: 10px 14px 12px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px;
   }
-  .subs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .subs .count { margin-left: 4px; opacity: .7; font-size: .85em; }
+  .subs button:hover { color: var(--ink); }
+  .subs button.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
+  .subs .count { margin-left: 5px; font-size: .82em; color: var(--sub); }
 
-  h2 { font-size: 1rem; margin: 22px 0 10px; color: var(--sub); }
+  h2 { font-size: 1.02rem; margin: 30px 0 10px; color: var(--ink); font-weight: 600; }
   h2:first-child { margin-top: 0; }
 
   .empty {
-    background: var(--card); border: 1px dashed var(--line); border-radius: 10px;
-    padding: 36px 20px; text-align: center; color: var(--sub);
+    background: var(--card); border: 1px dashed var(--line); border-radius: 12px;
+    padding: 40px 20px; text-align: center; color: var(--sub);
   }
   .notice {
     background: var(--bad-soft); border: 1px solid var(--bad); color: var(--bad);
-    border-radius: 10px; padding: 16px 18px;
+    border-radius: 10px; padding: 16px 18px; margin: 32px auto; max-width: 1040px;
   }
 
-  .list { display: grid; gap: 10px; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
   .item {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+    padding: 16px 18px; border-bottom: 1px solid var(--line);
     display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
   }
+  .item:last-child { border-bottom: 0; }
   .item .title { font-weight: 600; }
   .item .desc { color: var(--sub); font-size: .9rem; }
   .tag {
-    font-size: .75rem; padding: 2px 8px; border-radius: 6px;
-    background: var(--bg); color: var(--sub); border: 1px solid var(--line);
+    font-size: .76rem; padding: 2px 8px; border-radius: 5px;
+    background: var(--paper); color: var(--sub); border: 1px solid var(--line);
   }
   .actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .btn {
-    border: 1px solid var(--line); background: var(--card); color: var(--text);
-    padding: 6px 12px; border-radius: 6px; font-size: .9rem; cursor: pointer;
-    text-decoration: none; font-family: inherit; display: inline-block;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    padding: 7px 13px; border-radius: 6px; font: inherit; font-size: .9rem; cursor: pointer;
+    text-decoration: none; display: inline-block; line-height: 1.3;
   }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn.primary:hover { opacity: .9; color: #fff; }
+  .btn:hover { border-color: var(--teal); color: var(--teal); }
+  .btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .btn.primary:hover { background: #0f7670; color: #fff; }
   .slot { flex-basis: 100%; }
   .slot:empty { display: none; }
   .pdf { width: 100%; height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
@@ -82,44 +198,76 @@
   .player video, .player iframe { width: 100%; height: 100%; border: 0; display: block; }
 
   /* 시험 */
-  .q { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
   .q.correct { border-color: var(--ok); background: var(--ok-soft); }
   .q.wrong { border-color: var(--bad); background: var(--bad-soft); }
   .q.self { border-color: var(--self); background: var(--self-soft); }
   .q-head { font-weight: 600; margin-bottom: 10px; display: flex; gap: 8px; align-items: baseline; }
+  .q-head .tag { margin-left: auto; flex: none; }
   .q label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
-  .q label:hover { background: rgba(0,0,0,.04); }
+  .q label:hover { background: rgba(20, 35, 59, .04); }
   .q label.answer { font-weight: 600; color: var(--ok); }
-  .q input[type=radio] { margin-top: 6px; }
+  .q input[type=radio] { margin-top: 7px; accent-color: var(--teal); }
   .q textarea {
-    width: 100%; min-height: 90px; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+    width: 100%; min-height: 96px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
     font: inherit; resize: vertical; background: #fff;
   }
-  .feedback { margin-top: 10px; font-size: .92rem; white-space: pre-wrap; }
+  .feedback { margin-top: 10px; font-size: .93rem; white-space: pre-wrap; }
   .feedback b { display: block; }
-  .result {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-    padding: 16px 18px; margin-bottom: 16px; display: none;
-  }
+  .result { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: none; }
   .result strong { font-size: 1.1rem; }
   .quiz-actions { display: flex; gap: 8px; }
   .warn { color: var(--bad); font-size: .9rem; margin-top: 8px; }
+
+  /* 카테터 그리기 (첫 화면에서 한 번) */
+  .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 2.4s .2s cubic-bezier(.6, .1, .2, 1) forwards; }
+  .bands-in { opacity: 0; animation: fade .6s 2.4s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .draw { animation: none; stroke-dashoffset: 0; }
+    .bands-in { animation: none; opacity: 1; }
+    .ring, .drop { transition: none; }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1 id="siteTitle"></h1>
-    <nav class="areas" id="areas"></nav>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#" id="brand">RA Portfolio</a>
+    <button class="burger" id="burger" aria-label="메뉴 열기" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <nav id="nav" aria-label="분야 메뉴"><ul class="menu" id="menu"></ul></nav>
   </div>
 </header>
 
-<main>
-  <div class="wrap" id="content">
-    <div class="empty">자료를 불러오는 중입니다…</div>
+<section class="hero" id="home">
+  <div class="scene" data-scene="hero"></div>
+  <div class="hero-in">
+    <h1 id="heroTitle"></h1>
+    <p class="lead" id="heroLead"></p>
+    <ul class="shortcuts" id="shortcuts"></ul>
+  </div>
+</section>
+
+<main id="page" hidden>
+  <div class="band">
+    <div class="scene" data-scene="band"></div>
+    <div class="wrap">
+      <span class="ring" id="pageIcon"></span>
+      <div>
+        <h1 id="pageTitle"></h1>
+        <p id="pageMeta"></p>
+      </div>
+    </div>
+  </div>
+  <div class="wrap body">
+    <div class="subs" id="subs" role="tablist"></div>
+    <div id="panel"></div>
   </div>
 </main>
+
+<div class="wrap" id="status"></div>
 
 <script>
 /* 데이터는 같은 폴더의 data.xlsx에서 읽습니다. 내용 수정은 엑셀에서 하세요. */
@@ -131,19 +279,79 @@ const SUB_TABS = [
   { id: "quiz", label: "시험" },
   { id: "ref", label: "참고자료" },
 ];
+// 분야별 아이콘 (Font Awesome). 목록에 없는 분야는 폴더 아이콘
+const ICONS = {
+  "위험 관리": "fa-triangle-exclamation",
+  "공급업체 관리": "fa-clipboard-check",
+  "멸균 공정 밸리데이션": "fa-flask",
+  "CAPA": "fa-arrows-rotate",
+  "UDI 관리": "fa-barcode",
+};
+const iconOf = a => `<i class="fa-solid ${ICONS[a] || "fa-folder"}" aria-hidden="true"></i>`;
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const str = v => String(v ?? "").trim();
 const ext = f => (str(f).split("?")[0].split(".").pop() || "").toLowerCase();
-// 한글·공백·괄호·+ 등이 들어간 경로를 안전한 주소로 변환
 const toUrl = p => /^https?:\/\//i.test(p) ? p : str(p).split("/").map(encodeURIComponent).join("/");
 const emptyBox = msg => `<div class="empty">${msg}</div>`;
 const titleOf = t => esc(t) || '<span class="missing">제목 미입력</span>';
 const youtubeId = url => (String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1] || null;
+const hashOf = (a, s) => "#" + encodeURIComponent(a) + "/" + s;
 
 let DB = { docs: [], quiz: [], refs: [], areas: [] };
 let state = { area: null, sub: "docs" };
+
+/* ---------- 배경 그래픽: 마이크로카테터 곡선 + 디스펜서 코일 + 파우치 점 패턴 ---------- */
+function sceneSvg(id, animate, withCath) {
+  return `
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#0b2034"/><stop offset=".55" stop-color="#0f3c49"/><stop offset="1" stop-color="#0f5550"/>
+      </linearGradient>
+      <radialGradient id="glow-${id}" cx=".78" cy=".3" r=".55">
+        <stop offset="0" stop-color="#3fb8ae" stop-opacity=".28"/><stop offset="1" stop-color="#3fb8ae" stop-opacity="0"/>
+      </radialGradient>
+      <pattern id="dots-${id}" width="22" height="22" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.1" fill="#ffffff" fill-opacity=".07"/>
+      </pattern>
+      <linearGradient id="tube-${id}" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#7fd8cf" stop-opacity=".15"/><stop offset=".6" stop-color="#8fe3da" stop-opacity=".75"/><stop offset="1" stop-color="#e9fbf8"/>
+      </linearGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#g-${id})"/>
+    <rect width="1600" height="900" fill="url(#glow-${id})"/>
+    <rect width="1600" height="900" fill="url(#dots-${id})"/>
+    <g fill="none" stroke="#ffffff" stroke-opacity=".07">
+      <circle cx="170" cy="190" r="210"/><circle cx="170" cy="190" r="228"/><circle cx="170" cy="190" r="246"/>
+      <circle cx="170" cy="190" r="264"/><circle cx="170" cy="190" r="282"/>
+    </g>
+    ${withCath ? `<path class="cath ${animate ? "draw" : ""}" fill="none" stroke="url(#tube-${id})" stroke-width="7" stroke-linecap="round"
+      d="M-60 900 C 320 830, 520 790, 800 815 S 1180 830, 1300 640 S 1430 300, 1275 225 S 1090 295, 1170 375"/>
+    <g class="marks ${animate ? "bands-in" : ""}"></g>` : ""}
+  </svg>`;
+}
+
+function mountScenes() {
+  document.querySelectorAll("[data-scene]").forEach(el => {
+    const id = el.dataset.scene;
+    el.innerHTML = sceneSvg(id, id === "hero", id === "hero");
+    const path = el.querySelector(".cath");
+    if (!path) return;
+    const len = path.getTotalLength ? path.getTotalLength() : 3000;
+    path.style.setProperty("--len", len);
+    // 원위부 팁 근처 마커 밴드 2개
+    const g = el.querySelector(".marks");
+    if (!path.getPointAtLength) return;
+    [26, 70].forEach(d => {
+      const p = path.getPointAtLength(len - d), q = path.getPointAtLength(len - d - 1);
+      const ang = Math.atan2(p.y - q.y, p.x - q.x) * 180 / Math.PI;
+      g.insertAdjacentHTML("beforeend",
+        `<rect x="${p.x - 4}" y="${p.y - 8}" width="8" height="16" rx="2" fill="#c9d3dc" transform="rotate(${ang} ${p.x} ${p.y})"/>`);
+    });
+  });
+}
 
 /* ---------- 엑셀 읽기 ---------- */
 function rowsOf(wb, name) {
@@ -153,11 +361,18 @@ function rowsOf(wb, name) {
     .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])))
     .filter(r => str(r["분야"]));
 }
+function setting(wb, key) {
+  const ws = wb.Sheets["설정"];
+  if (!ws) return "";
+  const row = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" }).find(r => str(r[0]) === key);
+  return row ? str(row[1]) : "";
+}
+function showStatus(html) { document.getElementById("status").innerHTML = html ? `<div class="notice">${html}</div>` : ""; }
 
 async function load() {
-  const content = document.getElementById("content");
+  mountScenes();
   if (typeof XLSX === "undefined") {
-    content.innerHTML = `<div class="notice">엑셀을 읽는 프로그램(SheetJS)을 불러오지 못했습니다. 인터넷 연결이나 회사 네트워크 차단 여부를 확인해 주세요.</div>`;
+    showStatus("엑셀을 읽는 프로그램(SheetJS)을 불러오지 못했습니다. 인터넷 연결이나 회사 네트워크 차단 여부를 확인해 주세요.");
     return;
   }
   let wb;
@@ -166,19 +381,20 @@ async function load() {
     if (!res.ok) throw new Error(res.status);
     wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
   } catch (e) {
-    content.innerHTML = location.protocol === "file:"
-      ? `<div class="notice">PC에서 파일을 직접 열면 브라우저 보안 때문에 data.xlsx를 읽을 수 없습니다. GitHub Pages 주소로 접속해 주세요.</div>`
-      : `<div class="notice">data.xlsx를 불러오지 못했습니다. index.html과 같은 위치에 data.xlsx가 있는지 확인해 주세요.</div>`;
+    showStatus(location.protocol === "file:"
+      ? "PC에서 파일을 직접 열면 브라우저 보안 때문에 data.xlsx를 읽을 수 없습니다. GitHub Pages 주소로 접속해 주세요."
+      : "data.xlsx를 불러오지 못했습니다. index.html과 같은 위치에 data.xlsx가 있는지 확인해 주세요.");
     return;
   }
 
-  // 설정
-  const setting = (XLSX.utils.sheet_to_json(wb.Sheets["설정"] || {}, { header: 1, defval: "" }) || [])
-    .find(r => str(r[0]) === "사이트 제목");
-  const title = setting ? str(setting[1]) : "";
-  const titleEl = document.getElementById("siteTitle");
-  if (title) { titleEl.textContent = title; document.title = title; }
-  else titleEl.innerHTML = '<span class="missing">사이트 제목 미입력 (data.xlsx › 설정 시트)</span>';
+  const title = setting(wb, "사이트 제목");
+  if (title) { document.getElementById("brand").textContent = title; document.title = title; }
+  const main = setting(wb, "메인 문구");
+  const lead = setting(wb, "보조 문구");
+  document.getElementById("heroTitle").innerHTML = main
+    ? esc(main).replace(/\r?\n/g, "<br>")
+    : '<span class="missing">메인 문구 미입력 (data.xlsx › 설정)</span>';
+  document.getElementById("heroLead").textContent = lead;
 
   DB.docs = rowsOf(wb, "자료").map(r => ({
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
@@ -194,41 +410,21 @@ async function load() {
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
     url: str(r["URL"]), desc: str(r["설명"]),
   }));
-
-  // 분야 순서: 자료 → 시험문제 → 참고자료 순으로 처음 나온 순서 ("공통"은 탭 없이 모든 분야에 표시)
   const seen = [];
   [...DB.docs, ...DB.quiz, ...DB.refs].forEach(r => {
     if (r.area !== "공통" && !seen.includes(r.area)) seen.push(r.area);
   });
   DB.areas = seen;
 
-  if (!DB.areas.length) {
-    content.innerHTML = emptyBox("data.xlsx에 등록된 자료가 없습니다.");
-    return;
-  }
+  if (!DB.areas.length) { showStatus("data.xlsx에 등록된 자료가 없습니다."); return; }
 
-  const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
-  state.area = DB.areas.includes(a) ? a : DB.areas[0];
-  state.sub = SUB_TABS.some(t => t.id === s) ? s : "docs";
-  renderAreas();
-  render();
+  buildMenu();
+  buildShortcuts();
+  window.addEventListener("hashchange", route);
+  route();
 }
 
-/* ---------- 탭 ---------- */
-function renderAreas() {
-  const nav = document.getElementById("areas");
-  nav.innerHTML = DB.areas.map(a =>
-    `<button data-area="${esc(a)}" class="${a === state.area ? "active" : ""}">${esc(a)}</button>`).join("");
-  nav.onclick = e => {
-    const b = e.target.closest("button");
-    if (!b) return;
-    state.area = b.dataset.area;
-    state.sub = "docs";
-    renderAreas();
-    render();
-  };
-}
-
+/* ---------- 메뉴 ---------- */
 function counts(area) {
   return {
     docs: DB.docs.filter(d => d.area === area && d.kind !== "비디오").length,
@@ -238,20 +434,87 @@ function counts(area) {
   };
 }
 
-function render() {
-  history.replaceState(null, "", "#" + encodeURIComponent(state.area) + "/" + state.sub);
+function buildMenu() {
+  const menu = document.getElementById("menu");
+  menu.innerHTML = DB.areas.map(a => {
+    const c = counts(a);
+    return `
+    <li class="m-item" data-area="${esc(a)}">
+      <button class="m-top" type="button" aria-haspopup="true">${esc(a)}</button>
+      <ul class="drop">
+        ${SUB_TABS.map(t => `<li><a href="${hashOf(a, t.id)}">${t.label}<span class="n">${c[t.id]}</span></a></li>`).join("")}
+      </ul>
+    </li>`;
+  }).join("");
+
+  const nav = document.getElementById("nav");
+  const burger = document.getElementById("burger");
+  const mobile = () => matchMedia("(max-width: 900px)").matches;
+  const closeNav = () => {
+    nav.classList.remove("open"); burger.setAttribute("aria-expanded", "false");
+    menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
+  };
+
+  burger.onclick = () => {
+    const open = nav.classList.toggle("open");
+    burger.setAttribute("aria-expanded", String(open));
+  };
+  menu.addEventListener("click", e => {
+    const top = e.target.closest(".m-top");
+    if (top) {
+      const item = top.parentElement;
+      if (mobile()) {          // 휴대폰: 눌러서 펼치기
+        const was = item.classList.contains("open");
+        menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
+        item.classList.toggle("open", !was);
+      } else {                 // PC: 분야 이름을 누르면 그 분야로 이동
+        location.hash = hashOf(item.dataset.area, "docs");
+      }
+      return;
+    }
+    if (e.target.closest(".drop a")) { closeNav(); document.activeElement.blur(); }
+  });
+  document.getElementById("brand").addEventListener("click", closeNav);
+}
+
+function buildShortcuts() {
+  document.getElementById("shortcuts").innerHTML = DB.areas.map(a => `
+    <li><a href="${hashOf(a, "docs")}">
+      <span class="ring">${iconOf(a)}</span>
+      <span class="label">${esc(a)}</span>
+    </a></li>`).join("");
+}
+
+/* ---------- 화면 전환 ---------- */
+function route() {
+  const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
+  const home = document.getElementById("home");
+  const page = document.getElementById("page");
+  if (!DB.areas.includes(a)) {
+    home.hidden = false; page.hidden = true;
+    document.querySelectorAll(".m-item").forEach(m => m.classList.remove("current"));
+    return;
+  }
+  state.area = a;
+  state.sub = SUB_TABS.some(t => t.id === s) ? s : "docs";
+  home.hidden = true; page.hidden = false;
+  document.querySelectorAll(".m-item").forEach(m => m.classList.toggle("current", m.dataset.area === a));
+  renderPage();
+  window.scrollTo(0, 0);
+}
+
+function renderPage() {
   const c = counts(state.area);
-  const content = document.getElementById("content");
-  content.innerHTML = `
-    <div class="subs" id="subs">
-      ${SUB_TABS.map(t => `<button data-sub="${t.id}" class="${t.id === state.sub ? "active" : ""}">${t.label}<span class="count">${c[t.id]}</span></button>`).join("")}
-    </div>
-    <div id="panel"></div>`;
-  document.getElementById("subs").onclick = e => {
+  document.getElementById("pageIcon").innerHTML = iconOf(state.area);
+  document.getElementById("pageTitle").textContent = state.area;
+  document.getElementById("pageMeta").textContent =
+    `문서 ${c.docs}개, 비디오 ${c.video}개, 시험 ${c.quiz}문제, 참고자료 ${c.ref}개`;
+  const subs = document.getElementById("subs");
+  subs.innerHTML = SUB_TABS.map(t =>
+    `<button role="tab" aria-selected="${t.id === state.sub}" data-sub="${t.id}" class="${t.id === state.sub ? "active" : ""}">${t.label}<span class="count">${c[t.id]}</span></button>`).join("");
+  subs.onclick = e => {
     const b = e.target.closest("button");
-    if (!b) return;
-    state.sub = b.dataset.sub;
-    render();
+    if (b) history.replaceState(null, "", hashOf(state.area, b.dataset.sub)), state.sub = b.dataset.sub, renderPage();
   };
   const panel = document.getElementById("panel");
   ({ docs: renderDocs, video: renderVideo, quiz: renderQuiz, ref: renderRefs })[state.sub](panel);
@@ -281,8 +544,7 @@ function renderDocs(panel) {
   const items = DB.docs.filter(d => d.area === state.area && d.kind !== "비디오");
   if (!items.length) { panel.innerHTML = emptyBox("등록된 절차서·양식이 없습니다."); return; }
   const order = ["절차서", "양식", "부적합 사례"];
-  const kinds = [...new Set([...order.filter(k => items.some(d => d.kind === k)),
-                             ...items.map(d => d.kind)])];
+  const kinds = [...new Set([...order.filter(k => items.some(d => d.kind === k)), ...items.map(d => d.kind)])];
   panel.innerHTML = kinds.map(k => `
     <h2>${esc(k) || "구분 미입력"}</h2>
     <div class="list">${items.map((d, i) => d.kind === k ? docItem(d, i) : "").join("")}</div>`).join("");
@@ -292,7 +554,7 @@ function renderDocs(panel) {
     const slot = document.getElementById("slot-" + b.dataset.view);
     if (slot.innerHTML) { slot.innerHTML = ""; b.textContent = "미리보기"; }
     else {
-      slot.innerHTML = `<iframe class="pdf" src="${toUrl(items[b.dataset.view].view)}"></iframe>`;
+      slot.innerHTML = `<iframe class="pdf" src="${toUrl(items[b.dataset.view].view)}" title="PDF 미리보기"></iframe>`;
       b.textContent = "닫기";
     }
   };
@@ -301,7 +563,7 @@ function renderDocs(panel) {
 /* ---------- 비디오 ---------- */
 function playerHtml(src) {
   const yt = youtubeId(src);
-  if (yt) return `<div class="player"><iframe src="https://www.youtube.com/embed/${yt}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+  if (yt) return `<div class="player"><iframe src="https://www.youtube.com/embed/${yt}" title="동영상" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
   return `<div class="player"><video src="${toUrl(src)}" controls preload="metadata"></video></div>`;
 }
 
@@ -327,7 +589,7 @@ function renderQuiz(panel) {
         <div class="q" id="q${i}">
           <div class="q-head"><span>${i + 1}.</span><span>${esc(q.q)}</span><span class="tag">${esc(q.type)}</span></div>
           ${q.type === "주관식"
-            ? `<textarea name="q${i}" placeholder="답을 작성하세요"></textarea>`
+            ? `<textarea name="q${i}" placeholder="답을 작성하세요" aria-label="${i + 1}번 답안"></textarea>`
             : q.options.map((o, j) => `
               <label data-j="${j + 1}"><input type="radio" name="q${i}" value="${j + 1}"><span>${j + 1}) ${esc(o)}</span></label>`).join("")}
           <div class="feedback" hidden></div>
