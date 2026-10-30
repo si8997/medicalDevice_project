@@ -78,7 +78,7 @@
   .drop .n { font-size: .8rem; color: var(--sub); }
   .burger { display: none; background: none; border: 0; font-size: 1.35rem; color: var(--ink); padding: 8px; cursor: pointer; }
 
-  @media (max-width: 1000px) {
+  @media (max-width: 1180px) {
     .burger { display: block; }
     nav#nav {
       position: absolute; top: var(--header-h); left: 0; right: 0;
@@ -125,11 +125,11 @@
   }
   .shortcuts {
     list-style: none; padding: 0; margin: clamp(48px, 9vh, 96px) auto 0;
-    display: flex; justify-content: center; flex-wrap: wrap; gap: 32px clamp(18px, 4vw, 56px);
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 32px clamp(14px, 2.6vw, 40px);
   }
   .shortcuts a {
     display: flex; flex-direction: column; align-items: center; gap: 12px;
-    text-decoration: none; color: #fff; width: 124px;
+    text-decoration: none; color: #fff; width: 112px;
   }
   .ring {
     width: 88px; height: 88px; border-radius: 50%;
@@ -287,6 +287,55 @@
     .subs button { white-space: nowrap; padding: 10px 10px 12px; }
   }
 
+  /* ---------- 참고자료 페이지 ---------- */
+  .links-body { padding-top: 40px; padding-bottom: 88px; }
+  .links-sec + .links-sec { margin-top: 48px; }
+  .links-sec > h3.group:first-child { margin-top: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .card .body-c { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .card .name { font-weight: 600; line-height: 1.45; }
+  .card .meta { color: var(--sub); font-size: .86rem; }
+  .card .desc { color: var(--sub); font-size: .9rem; }
+  .card .actions { margin-top: auto; padding-top: 10px; }
+  /* 사이트 미리보기: 브라우저 창 모양 */
+  .site-thumb { display: block; text-decoration: none; background: #eef3f6; border-bottom: 1px solid var(--line); }
+  .site-thumb .chrome {
+    display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+    background: #fff; border-bottom: 1px solid var(--line); font-size: .76rem; color: var(--sub);
+  }
+  .site-thumb .chrome i.dot { width: 8px; height: 8px; border-radius: 50%; background: #d3dbe3; display: inline-block; }
+  .site-thumb .chrome .addr {
+    margin-left: 8px; flex: 1; padding: 2px 10px; border-radius: 999px; background: var(--paper);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .site-thumb .face {
+    aspect-ratio: 16 / 7; display: grid; place-items: center; gap: 8px; align-content: center;
+    background: radial-gradient(circle at 50% 40%, #ffffff 0, #e8f1f3 70%);
+  }
+  .site-thumb .face img, .site-thumb .face .fallback {
+    width: 56px; height: 56px; border-radius: 12px; background: #fff; padding: 8px;
+    box-shadow: 0 4px 14px rgba(20, 35, 59, .12); object-fit: contain;
+  }
+  .site-thumb .face .fallback { display: grid; place-items: center; color: var(--teal); font-size: 1.5rem; }
+  .site-thumb .face .host { font-size: .82rem; color: var(--sub); }
+  .site-thumb .face img.custom { width: 100%; height: 100%; border-radius: 0; padding: 0; box-shadow: none; object-fit: cover; }
+  .site-thumb:hover .face { background: radial-gradient(circle at 50% 40%, #ffffff 0, #dcefee 70%); }
+  /* 영상: 썸네일을 누르면 이 자리에서 재생 */
+  .yt { position: relative; aspect-ratio: 16 / 9; background: #0b2034; border: 0; padding: 0; width: 100%; cursor: pointer; display: block; }
+  .yt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .yt .play {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(11, 32, 52, .72); color: #fff; font-size: 1.3rem; border: 2px solid rgba(255,255,255,.85);
+    transition: background .15s, transform .15s;
+  }
+  .yt:hover .play, .yt:focus-visible .play { background: var(--teal); transform: translate(-50%, -50%) scale(1.06); }
+  .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
   /* 카테터 그리기 (첫 화면에서 한 번) */
   .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 2.4s .2s cubic-bezier(.6, .1, .2, 1) forwards; }
   .bands-in { opacity: 0; animation: fade .6s 2.4s forwards; }
@@ -323,6 +372,10 @@
     <div class="subs" id="subs" role="tablist"></div>
     <div id="panel"></div>
   </div>
+</main>
+
+<main id="links" hidden>
+  <div class="wrap links-body" id="linksBody"></div>
 </main>
 
 <main id="about" hidden>
@@ -470,7 +523,7 @@ async function load() {
   }));
   DB.refs = rowsOf(wb, "참고자료").map(r => ({
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
-    url: str(r["URL"]), desc: str(r["설명"]),
+    url: str(r["URL"]), desc: str(r["설명"]), source: str(r["출처"]), thumb: str(r["썸네일"]),
   }));
   DB.about = (wb.Sheets["소개"] ? cleanRows(wb.Sheets["소개"]) : [])
     .filter(r => str(r["항목"]))
@@ -496,7 +549,7 @@ function counts(area) {
     docs: DB.docs.filter(d => inArea(d.area) && d.kind !== "비디오").length,
     video: DB.docs.filter(d => inArea(d.area) && d.kind === "비디오").length,
     quiz: DB.quiz.filter(q => inArea(q.area)).length,
-    ref: area === ALL ? DB.refs.length : DB.refs.filter(r => r.area === area || r.area === "공통").length,
+    ref: DB.refs.filter(r => r.area !== "공통" && inArea(r.area)).length,
   };
 }
 
@@ -510,8 +563,10 @@ function dropHtml(area) {
 function buildMenu() {
   const menu = document.getElementById("menu");
   const aboutLink = DB.about.length
-    ? `<li class="m-item m-link" data-about="1"><a class="m-top" href="#about">포트폴리오 소개</a></li>` : "";
-  menu.innerHTML = aboutLink
+    ? `<li class="m-item m-link" data-page="about"><a class="m-top" href="#about">포트폴리오 소개</a></li>` : "";
+  const linksLink = sharedRefs().length
+    ? `<li class="m-item m-link" data-page="links"><a class="m-top" href="#links">참고자료</a></li>` : "";
+  menu.innerHTML = aboutLink + linksLink
     + DB.areas.map(a => `
       <li class="m-item" data-area="${esc(a)}">
         <button class="m-top" type="button" aria-haspopup="true">${esc(a)}</button>
@@ -524,7 +579,7 @@ function buildMenu() {
 
   const nav = document.getElementById("nav");
   const burger = document.getElementById("burger");
-  const mobile = () => matchMedia("(max-width: 1000px)").matches;
+  const mobile = () => matchMedia("(max-width: 1180px)").matches;
   const closeNav = () => {
     nav.classList.remove("open"); burger.setAttribute("aria-expanded", "false");
     menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
@@ -538,7 +593,7 @@ function buildMenu() {
     const top = e.target.closest(".m-top");
     if (top) {
       const item = top.parentElement;
-      if (item.dataset.about) { closeNav(); return; }
+      if (item.classList.contains("m-link")) { closeNav(); return; }
       if (mobile()) {          // 휴대폰: 눌러서 펼치기
         const was = item.classList.contains("open");
         menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
@@ -559,7 +614,12 @@ function buildShortcuts() {
       <span class="ring"><i class="fa-solid fa-syringe" aria-hidden="true"></i></span>
       <span class="label">포트폴리오 소개</span>
     </a></li>` : "";
-  document.getElementById("shortcuts").innerHTML = aboutRing + DB.areas.map(a => `
+  const linksRing = sharedRefs().length ? `
+    <li><a href="#links" data-key="links">
+      <span class="ring"><i class="fa-solid fa-bookmark" aria-hidden="true"></i></span>
+      <span class="label">참고자료</span>
+    </a></li>` : "";
+  document.getElementById("shortcuts").innerHTML = aboutRing + linksRing + DB.areas.map(a => `
     <li><a href="${hashOf(a, "docs")}" data-key="${esc(a)}">
       <span class="ring">${iconOf(a)}</span>
       <span class="label">${esc(a)}</span>
@@ -583,12 +643,22 @@ function route() {
   const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
   const page = document.getElementById("page");
   const about = document.getElementById("about");
+  const links = document.getElementById("links");
   document.querySelectorAll(".m-item").forEach(m => m.classList.remove("current"));
-  page.hidden = true; about.hidden = true;
+  page.hidden = true; about.hidden = true; links.hidden = true;
+
+  if (a === "links" && sharedRefs().length) {
+    setHero(true, "참고자료", "", "links");
+    document.querySelector('.m-link[data-page="links"]')?.classList.add("current");
+    links.hidden = false;
+    renderLinks();
+    window.scrollTo(0, 0);
+    return;
+  }
 
   if (a === "about" && DB.about.length) {
     setHero(true, "포트폴리오 소개", "", "about");
-    document.querySelector(".m-link")?.classList.add("current");
+    document.querySelector('.m-link[data-page="about"]')?.classList.add("current");
     about.hidden = false;
     renderAbout();
   } else if (DB.areas.includes(a) || a === ALL) {
@@ -687,7 +757,7 @@ function videoHtml(area) {
 
 /* ---------- 참고자료 ---------- */
 function refsHtml(area) {
-  const items = DB.refs.filter(r => r.area === area || r.area === "공통");
+  const items = DB.refs.filter(r => r.area === area);
   if (!items.length) return emptyBox("이 분야에 등록된 참고자료가 없습니다.");
   return `<div class="list" style="margin-top:20px">${items.map(r => {
     const id = "s" + (uid++);
@@ -772,6 +842,68 @@ function gradeQuiz(form) {
   result.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+/* ---------- 참고자료 페이지 (분야 = 공통) ---------- */
+const sharedRefs = () => DB.refs.filter(r => r.area === "공통");
+const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
+const isImg = p => /\.(png|jpe?g|webp|gif|svg)$/i.test(str(p));
+
+function siteCard(r) {
+  const host = hostOf(r.url);
+  const face = r.thumb && isImg(r.thumb)
+    ? `<img class="custom" src="${toUrl(r.thumb)}" alt="">`
+    : `${host ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128" alt=""
+             onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',innerHTML:'<i class=&quot;fa-solid fa-globe&quot;></i>'}))">` : ""}
+       <span class="host">${esc(host)}</span>`;
+  return `
+  <article class="card">
+    ${r.url ? `<a class="site-thumb" href="${esc(r.url)}" target="_blank" rel="noopener" aria-label="${esc(r.title)} 새 창으로 열기">
+      <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="addr">${esc(host)}</span></div>
+      <div class="face">${face}</div>
+    </a>` : ""}
+    <div class="body-c">
+      <div class="name">${esc(r.title) || '<span class="missing">제목 미입력</span>'}</div>
+      ${r.source ? `<div class="meta">${esc(r.source)}</div>` : ""}
+      ${r.desc ? `<div class="desc">${esc(r.desc)}</div>` : ""}
+      <div class="actions">
+        ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">${ICON.open} 사이트 열기</a>`
+                : '<span class="desc missing">URL 미입력</span>'}
+      </div>
+    </div>
+  </article>`;
+}
+
+function videoCard(r) {
+  const yt = youtubeId(r.url);
+  const thumb = r.thumb && isImg(r.thumb) ? toUrl(r.thumb) : (yt ? `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` : "");
+  return `
+  <article class="card">
+    ${yt ? `<button class="yt" type="button" data-yt="${yt}" aria-label="${esc(r.title)} 재생">
+      ${thumb ? `<img src="${thumb}" alt="" loading="lazy">` : ""}
+      <span class="play"><i class="fa-solid fa-play" aria-hidden="true"></i></span>
+    </button>` : ""}
+    <div class="body-c">
+      <div class="name">${esc(r.title) || '<span class="missing">제목 미입력</span>'}</div>
+      ${r.source ? `<div class="meta">${esc(r.source)}</div>` : ""}
+      ${r.desc ? `<div class="desc">${esc(r.desc)}</div>` : ""}
+      <div class="actions">
+        ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener"><i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube에서 보기</a>`
+                : '<span class="desc missing">URL 미입력</span>'}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderLinks() {
+  const refs = sharedRefs();
+  const sites = refs.filter(r => !youtubeId(r.url));
+  const videos = refs.filter(r => youtubeId(r.url));
+  document.getElementById("linksBody").innerHTML = `
+    ${sites.length ? `<section class="links-sec"><h3 class="group">참고 웹사이트</h3>
+      <div class="cards">${sites.map(siteCard).join("")}</div></section>` : ""}
+    ${videos.length ? `<section class="links-sec"><h3 class="group">유용한 영상</h3>
+      <div class="cards">${videos.map(videoCard).join("")}</div></section>` : ""}`;
+}
+
 /* ---------- 포트폴리오 소개 ---------- */
 const paras = t => str(t).split(/\r?\n+/).map(x => x.trim()).filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("");
 
@@ -832,6 +964,12 @@ document.addEventListener("click", e => {
         : playerHtml(btn.dataset.play);
       btn.innerHTML = `${ICON.close} 닫기`; btn.classList.add("on");
     }
+    return;
+  }
+  const ytb = e.target.closest("button.yt[data-yt]");
+  if (ytb) {
+    ytb.outerHTML = `<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${ytb.dataset.yt}?autoplay=1&rel=0" title="동영상"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
     return;
   }
   const retry = e.target.closest("[data-retry]");
