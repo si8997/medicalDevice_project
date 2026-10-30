@@ -92,6 +92,7 @@
     .m-top { width: 100%; text-align: left; padding: 14px 6px; display: flex; justify-content: space-between; }
     .m-top::after { content: "\f107"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--sub); }
     .m-item.open .m-top::after { content: "\f106"; }
+    .m-link .m-top::after { content: none; }
     .drop, .m-item:hover > .drop, .m-item:focus-within > .drop {
       position: static; transform: none; box-shadow: none; border: 0; padding: 0 0 10px;
       display: none; opacity: 1; visibility: visible;
@@ -219,6 +220,35 @@
   .quiz-actions { display: flex; gap: 8px; }
   .warn { color: var(--bad); font-size: .9rem; margin-top: 8px; }
 
+  /* ---------- 포트폴리오 소개 ---------- */
+  .m-top { text-decoration: none; }
+  .ring.light { color: var(--teal); background: var(--teal-soft); border-color: #b9dfda; backdrop-filter: none; }
+  .about-body { padding-top: 48px; padding-bottom: 88px; }
+  .about-sec + .about-sec { margin-top: 64px; }
+  .about-sec > h2 { font-size: 1.05rem; color: var(--sub); font-weight: 600; margin: 0 0 18px; }
+  .pick {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 36px 40px;
+  }
+  .pick .summary { margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.6rem); line-height: 1.5; font-weight: 600; letter-spacing: -.015em; color: var(--ink); }
+  .pick .summary::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--teal); margin-bottom: 18px; }
+  .prose p { margin: 0 0 .9em; color: #2c3a4f; max-width: 40em; }
+  .prose p:last-child { margin-bottom: 0; }
+  .topics { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .topic {
+    display: grid; grid-template-columns: 56px minmax(0, .9fr) minmax(0, 1.3fr); gap: 24px 28px;
+    padding: 32px 36px; border-bottom: 1px solid var(--line);
+  }
+  .topic:last-child { border-bottom: 0; }
+  .topic .ring { width: 56px; height: 56px; font-size: 1.25rem; }
+  .topic h3 { margin: 4px 0 8px; font-size: 1.2rem; letter-spacing: -.01em; }
+  .topic .summary { margin: 0 0 16px; color: var(--sub); }
+  .topic .links { display: flex; gap: 6px; flex-wrap: wrap; }
+  @media (max-width: 800px) {
+    .pick { grid-template-columns: 1fr; gap: 20px; padding: 26px 22px; }
+    .topic { grid-template-columns: 1fr; gap: 14px; padding: 26px 22px; }
+  }
+
   /* 카테터 그리기 (첫 화면에서 한 번) */
   .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 2.4s .2s cubic-bezier(.6, .1, .2, 1) forwards; }
   .bands-in { opacity: 0; animation: fade .6s 2.4s forwards; }
@@ -267,6 +297,17 @@
   </div>
 </main>
 
+<main id="about" hidden>
+  <div class="band">
+    <div class="scene" data-scene="about"></div>
+    <div class="wrap">
+      <span class="ring"><i class="fa-solid fa-syringe" aria-hidden="true"></i></span>
+      <div><h1>포트폴리오 소개</h1></div>
+    </div>
+  </div>
+  <div class="wrap about-body" id="aboutBody"></div>
+</main>
+
 <div class="wrap" id="status"></div>
 
 <script>
@@ -299,7 +340,7 @@ const titleOf = t => esc(t) || '<span class="missing">제목 미입력</span>';
 const youtubeId = url => (String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1] || null;
 const hashOf = (a, s) => "#" + encodeURIComponent(a) + "/" + s;
 
-let DB = { docs: [], quiz: [], refs: [], areas: [] };
+let DB = { docs: [], quiz: [], refs: [], areas: [], about: [] };
 let state = { area: null, sub: "docs" };
 
 /* ---------- 배경 그래픽: 마이크로카테터 곡선 + 디스펜서 코일 + 파우치 점 패턴 ---------- */
@@ -328,7 +369,7 @@ function sceneSvg(id, animate, withCath) {
       <circle cx="170" cy="190" r="264"/><circle cx="170" cy="190" r="282"/>
     </g>
     ${withCath ? `<path class="cath ${animate ? "draw" : ""}" fill="none" stroke="url(#tube-${id})" stroke-width="7" stroke-linecap="round"
-      d="M-60 900 C 320 830, 520 790, 800 815 S 1180 830, 1300 640 S 1430 300, 1275 225 S 1090 295, 1170 375"/>
+      d="M-60 900 C 320 830, 540 800, 820 822 S 1290 845, 1410 660 S 1510 300, 1355 225 S 1170 295, 1250 375"/>
     <g class="marks ${animate ? "bands-in" : ""}"></g>` : ""}
   </svg>`;
 }
@@ -410,6 +451,10 @@ async function load() {
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
     url: str(r["URL"]), desc: str(r["설명"]),
   }));
+  DB.about = (wb.Sheets["소개"] ? XLSX.utils.sheet_to_json(wb.Sheets["소개"], { defval: "" }) : [])
+    .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])))
+    .filter(r => str(r["항목"]))
+    .map(r => ({ title: str(r["항목"]), area: str(r["연결 분야"]), summary: str(r["요약"]), body: str(r["본문"]) }));
   const seen = [];
   [...DB.docs, ...DB.quiz, ...DB.refs].forEach(r => {
     if (r.area !== "공통" && !seen.includes(r.area)) seen.push(r.area);
@@ -436,7 +481,9 @@ function counts(area) {
 
 function buildMenu() {
   const menu = document.getElementById("menu");
-  menu.innerHTML = DB.areas.map(a => {
+  const aboutLink = DB.about.length
+    ? `<li class="m-item m-link" data-about="1"><a class="m-top" href="#about">포트폴리오 소개</a></li>` : "";
+  menu.innerHTML = aboutLink + DB.areas.map(a => {
     const c = counts(a);
     return `
     <li class="m-item" data-area="${esc(a)}">
@@ -463,6 +510,7 @@ function buildMenu() {
     const top = e.target.closest(".m-top");
     if (top) {
       const item = top.parentElement;
+      if (item.dataset.about) { closeNav(); return; }
       if (mobile()) {          // 휴대폰: 눌러서 펼치기
         const was = item.classList.contains("open");
         menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
@@ -478,7 +526,12 @@ function buildMenu() {
 }
 
 function buildShortcuts() {
-  document.getElementById("shortcuts").innerHTML = DB.areas.map(a => `
+  const aboutRing = DB.about.length ? `
+    <li><a href="#about">
+      <span class="ring"><i class="fa-solid fa-syringe" aria-hidden="true"></i></span>
+      <span class="label">포트폴리오 소개</span>
+    </a></li>` : "";
+  document.getElementById("shortcuts").innerHTML = aboutRing + DB.areas.map(a => `
     <li><a href="${hashOf(a, "docs")}">
       <span class="ring">${iconOf(a)}</span>
       <span class="label">${esc(a)}</span>
@@ -490,9 +543,18 @@ function route() {
   const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
   const home = document.getElementById("home");
   const page = document.getElementById("page");
+  const about = document.getElementById("about");
+  document.querySelectorAll(".m-item").forEach(m => m.classList.remove("current"));
+  if (a === "about" && DB.about.length) {
+    home.hidden = true; page.hidden = true; about.hidden = false;
+    document.querySelector(".m-link")?.classList.add("current");
+    renderAbout();
+    window.scrollTo(0, 0);
+    return;
+  }
+  about.hidden = true;
   if (!DB.areas.includes(a)) {
     home.hidden = false; page.hidden = true;
-    document.querySelectorAll(".m-item").forEach(m => m.classList.remove("current"));
     return;
   }
   state.area = a;
@@ -518,6 +580,45 @@ function renderPage() {
   };
   const panel = document.getElementById("panel");
   ({ docs: renderDocs, video: renderVideo, quiz: renderQuiz, ref: renderRefs })[state.sub](panel);
+}
+
+/* ---------- 포트폴리오 소개 ---------- */
+const paras = t => str(t).split(/\r?\n+/).map(x => x.trim()).filter(Boolean).map(x => `<p>${esc(x)}</p>`).join("");
+
+function renderAbout() {
+  const intro = DB.about.filter(r => !r.area);
+  const topics = DB.about.filter(r => r.area);
+  document.getElementById("aboutBody").innerHTML = `
+    ${intro.map(r => `
+      <section class="about-sec">
+        <h2>${esc(r.title)}</h2>
+        <div class="pick">
+          <p class="summary">${esc(r.summary) || '<span class="missing">요약 미입력</span>'}</p>
+          <div class="prose">${paras(r.body) || '<p class="missing">본문 미입력</p>'}</div>
+        </div>
+      </section>`).join("")}
+    ${topics.length ? `
+      <section class="about-sec">
+        <h2>학습 주제 선정 이유</h2>
+        <div class="topics">
+          ${topics.map(r => {
+            const known = DB.areas.includes(r.area);
+            return `
+            <article class="topic">
+              <span class="ring light">${iconOf(r.area)}</span>
+              <div>
+                <h3>${esc(r.title)}</h3>
+                <p class="summary">${esc(r.summary)}</p>
+                ${known ? `<div class="links">
+                  <a class="btn" href="${hashOf(r.area, "docs")}">절차서·양식 보기</a>
+                  <a class="btn" href="${hashOf(r.area, "quiz")}">시험 풀기</a>
+                </div>` : ""}
+              </div>
+              <div class="prose">${paras(r.body) || '<p class="missing">본문 미입력</p>'}</div>
+            </article>`;
+          }).join("")}
+        </div>
+      </section>` : ""}`;
 }
 
 /* ---------- 절차서·양식 ---------- */
