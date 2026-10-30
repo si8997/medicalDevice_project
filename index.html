@@ -18,11 +18,9 @@
     --card: #ffffff;
     --brand: #1e4fa3;
     --teal: #138a83;
+    --teal-dark: #0f7670;
     --teal-soft: #e4f3f1;
     --hero-a: #0b2034;
-    --hero-b: #0f3c49;
-    --hero-c: #0f5550;
-    --band: #c9d3dc;
     --ok: #1a7f37; --ok-soft: #e7f5ec;
     --bad: #c4282f; --bad-soft: #fcecee;
     --self: #8a6100; --self-soft: #fdf6e3;
@@ -53,21 +51,24 @@
     font-size: 1.3rem; font-weight: 700; color: var(--brand);
     text-decoration: none; letter-spacing: -.01em; white-space: nowrap;
   }
-  .menu { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; height: 100%; }
+  .menu { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; height: 100%; }
   .m-item { position: relative; display: flex; align-items: center; }
   .m-top {
-    background: none; border: 0; font: inherit; font-size: .95rem; font-weight: 500; color: var(--ink);
-    padding: 10px 14px; cursor: pointer; border-radius: 6px; white-space: nowrap;
+    background: none; border: 0; font: inherit; font-size: .94rem; font-weight: 500; color: var(--ink);
+    padding: 10px 12px; cursor: pointer; border-radius: 6px; white-space: nowrap; text-decoration: none;
   }
   .m-item.current .m-top { color: var(--brand); font-weight: 600; }
   .m-top:hover, .m-item:focus-within .m-top { color: var(--brand); }
+  .m-item.all { margin-left: 6px; padding-left: 8px; border-left: 1px solid var(--line); height: 28px; align-self: center; }
   .drop {
     list-style: none; margin: 0; padding: 8px; min-width: 200px;
-    position: absolute; top: calc(100% - 10px); left: 50%; transform: translate(-50%, 6px);
+    position: absolute; top: calc(100% + 14px); left: 50%; transform: translate(-50%, 6px);
     background: #fff; border: 1px solid var(--line); border-radius: 10px;
     box-shadow: 0 12px 28px rgba(20, 35, 59, .14);
     opacity: 0; visibility: hidden; transition: opacity .15s, transform .15s, visibility .15s;
   }
+  .m-item:not(.all) .drop { top: calc(100% - 10px); }
+  .drop::before { content: ""; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }
   .m-item:hover > .drop, .m-item:focus-within > .drop { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
   .drop a {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
@@ -77,7 +78,7 @@
   .drop .n { font-size: .8rem; color: var(--sub); }
   .burger { display: none; background: none; border: 0; font-size: 1.35rem; color: var(--ink); padding: 8px; cursor: pointer; }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .burger { display: block; }
     nav#nav {
       position: absolute; top: var(--header-h); left: 0; right: 0;
@@ -87,7 +88,7 @@
     }
     nav#nav.open { display: block; }
     .menu { flex-direction: column; height: auto; padding: 8px 12px 14px; gap: 0; }
-    .m-item { display: block; border-bottom: 1px solid var(--line); }
+    .m-item, .m-item.all { display: block; border-bottom: 1px solid var(--line); margin: 0; padding: 0; border-left: 0; height: auto; }
     .m-item:last-child { border-bottom: 0; }
     .m-top { width: 100%; text-align: left; padding: 14px 6px; display: flex; justify-content: space-between; }
     .m-top::after { content: "\f107"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--sub); }
@@ -97,10 +98,11 @@
       position: static; transform: none; box-shadow: none; border: 0; padding: 0 0 10px;
       display: none; opacity: 1; visibility: visible;
     }
+    .drop::before { content: none; }
     .m-item.open > .drop { display: block; }
   }
 
-  /* ---------- 히어로 ---------- */
+  /* ---------- 히어로 (첫 화면: 크게 / 다른 화면: 작게 남아 메뉴 역할) ---------- */
   .scene { position: absolute; inset: 0; overflow: hidden; background: var(--hero-a); }
   .scene svg { width: 100%; height: 100%; display: block; }
   .hero {
@@ -135,22 +137,28 @@
     border: 1.5px solid rgba(255, 255, 255, .55);
     background: rgba(255, 255, 255, .06);
     backdrop-filter: blur(4px);
-    transition: background .2s, border-color .2s, transform .2s;
+    transition: background .2s, border-color .2s, transform .2s, width .25s, height .25s;
   }
   .shortcuts a:hover .ring, .shortcuts a:focus-visible .ring {
     background: rgba(255, 255, 255, .16); border-color: #fff; transform: translateY(-3px);
   }
+  .shortcuts a.active .ring { background: rgba(255, 255, 255, .26); border-color: #fff; }
   .shortcuts .label { font-size: .93rem; font-weight: 600; line-height: 1.35; text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.4); }
 
-  /* ---------- 분야 페이지 ---------- */
-  .band { position: relative; color: #fff; overflow: hidden; }
-  .band .wrap { position: relative; z-index: 1; padding-top: 44px; padding-bottom: 40px; display: flex; align-items: center; gap: 18px; }
-  .band .ring { width: 64px; height: 64px; font-size: 1.4rem; flex: none; }
-  .band h1 { margin: 0; font-size: clamp(1.5rem, 3.4vw, 2.2rem); letter-spacing: -.02em; line-height: 1.3; }
-  .band p { margin: 2px 0 0; color: rgba(255,255,255,.75); font-size: .95rem; }
+  .hero.compact { min-height: 0; }
+  .hero.compact .hero-in { padding: 36px 20px 26px; }
+  .hero.compact h1 { font-size: clamp(1.55rem, 3.4vw, 2.3rem); max-width: none; }
+  .hero.compact .lead { margin-top: 6px; font-size: .95rem; }
+  .hero.compact .shortcuts { margin-top: 26px; gap: 14px clamp(10px, 2.6vw, 34px); }
+  .hero.compact .shortcuts a { width: 104px; gap: 8px; }
+  .hero.compact .ring { width: 60px; height: 60px; font-size: 1.3rem; }
+  .hero.compact .label { font-size: .82rem; font-weight: 500; }
+  .hero.compact .cath, .hero.compact .marks { display: none; }
+  .hero.compact::after { background: rgba(6, 18, 30, .25); }
 
+  /* ---------- 분야 화면 ---------- */
   .body { padding-top: 24px; padding-bottom: 72px; }
-  .subs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
+  .subs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
   .subs button {
     border: 0; background: none; font: inherit; font-size: .98rem; color: var(--sub);
     padding: 10px 14px 12px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px;
@@ -159,12 +167,23 @@
   .subs button.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
   .subs .count { margin-left: 5px; font-size: .82em; color: var(--sub); }
 
-  h2 { font-size: 1.02rem; margin: 30px 0 10px; color: var(--ink); font-weight: 600; }
-  h2:first-child { margin-top: 0; }
+  h3.group {
+    font-size: 1.02rem; font-weight: 600; margin: 28px 0 12px;
+    padding-left: 10px; border-left: 4px solid var(--teal); line-height: 1.35;
+  }
+  .area-sep {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin: 48px 0 0; padding-top: 26px; border-top: 2px solid var(--ink);
+  }
+  .area-sep:first-child { margin-top: 20px; padding-top: 0; border-top: 0; }
+  .area-sep h2 { margin: 0; font-size: 1.25rem; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+  .area-sep h2 i { color: var(--teal); font-size: 1.05rem; }
+  .area-sep + .group { margin-top: 16px; }
+  .area-sep + .empty, .area-sep + .list, .area-sep + form { margin-top: 16px; }
 
   .empty {
     background: var(--card); border: 1px dashed var(--line); border-radius: 12px;
-    padding: 40px 20px; text-align: center; color: var(--sub);
+    padding: 36px 20px; text-align: center; color: var(--sub); margin-top: 20px;
   }
   .notice {
     background: var(--bad-soft); border: 1px solid var(--bad); color: var(--bad);
@@ -172,33 +191,41 @@
   }
 
   .list { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  .subs + .list { margin-top: 20px; }
   .item {
-    padding: 16px 18px; border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px 16px; flex-wrap: wrap;
   }
   .item:last-child { border-bottom: 0; }
-  .item .title { font-weight: 600; }
-  .item .desc { color: var(--sub); font-size: .9rem; }
+  .item .info { flex: 1; min-width: 220px; }
+  .item .code { font-size: .78rem; font-weight: 700; color: var(--brand); letter-spacing: .01em; }
+  .item .name { font-weight: 600; }
+  .item .desc { color: var(--sub); font-size: .9rem; margin-top: 2px; }
   .tag {
     font-size: .76rem; padding: 2px 8px; border-radius: 5px;
     background: var(--paper); color: var(--sub); border: 1px solid var(--line);
   }
-  .actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .btn {
-    border: 1px solid var(--line); background: var(--card); color: var(--ink);
-    padding: 7px 13px; border-radius: 6px; font: inherit; font-size: .9rem; cursor: pointer;
-    text-decoration: none; display: inline-block; line-height: 1.3;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); background: var(--card); color: var(--sub);
+    padding: 7px 13px; border-radius: 6px; font: inherit; font-size: .86rem; font-weight: 500;
+    cursor: pointer; text-decoration: none; line-height: 1.3;
+    transition: background .15s, border-color .15s, color .15s;
   }
-  .btn:hover { border-color: var(--teal); color: var(--teal); }
+  .btn i { font-size: .9em; }
+  .btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-soft); }
   .btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
-  .btn.primary:hover { background: #0f7670; color: #fff; }
+  .btn.primary:hover { background: var(--teal-dark); border-color: var(--teal-dark); color: #fff; }
+  .btn.on { border-color: var(--teal); color: var(--teal); background: var(--teal-soft); }
   .slot { flex-basis: 100%; }
   .slot:empty { display: none; }
-  .pdf { width: 100%; height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .pdf { width: 100%; height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; display: block; }
   .player { background: #000; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; }
   .player video, .player iframe { width: 100%; height: 100%; border: 0; display: block; }
 
   /* 시험 */
+  .quiz { margin-top: 20px; }
   .q { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
   .q.correct { border-color: var(--ok); background: var(--ok-soft); }
   .q.wrong { border-color: var(--bad); background: var(--bad-soft); }
@@ -215,17 +242,17 @@
   }
   .feedback { margin-top: 10px; font-size: .93rem; white-space: pre-wrap; }
   .feedback b { display: block; }
-  .result { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: none; }
+  .result { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
   .result strong { font-size: 1.1rem; }
   .quiz-actions { display: flex; gap: 8px; }
   .warn { color: var(--bad); font-size: .9rem; margin-top: 8px; }
 
   /* ---------- 포트폴리오 소개 ---------- */
-  .m-top { text-decoration: none; }
   .ring.light { color: var(--teal); background: var(--teal-soft); border-color: #b9dfda; backdrop-filter: none; }
   .about-body { padding-top: 48px; padding-bottom: 88px; }
-  .about-sec + .about-sec { margin-top: 64px; }
-  .about-sec > h2 { font-size: 1.05rem; color: var(--sub); font-weight: 600; margin: 0 0 18px; }
+  .about-sec + .about-sec { margin-top: 56px; }
+  .about-sec > h3.group:first-child { margin-top: 0; }
+  .hero .lead:empty { display: none; }
   .pick {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px;
     background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 36px 40px;
@@ -241,12 +268,23 @@
   }
   .topic:last-child { border-bottom: 0; }
   .topic .ring { width: 56px; height: 56px; font-size: 1.25rem; }
-  .topic h3 { margin: 4px 0 8px; font-size: 1.2rem; letter-spacing: -.01em; }
+  .topic h4 { margin: 4px 0 8px; font-size: 1.2rem; letter-spacing: -.01em; }
   .topic .summary { margin: 0 0 16px; color: var(--sub); }
   .topic .links { display: flex; gap: 6px; flex-wrap: wrap; }
+
   @media (max-width: 800px) {
     .pick { grid-template-columns: 1fr; gap: 20px; padding: 26px 22px; }
     .topic { grid-template-columns: 1fr; gap: 14px; padding: 26px 22px; }
+    .hero.compact .shortcuts a { width: 76px; }
+    .hero.compact .ring { width: 48px; height: 48px; font-size: 1.05rem; }
+    .hero.compact .label { font-size: .74rem; }
+    .item .info { min-width: 100%; }
+    .item { padding: 14px 16px; }
+    .actions { gap: 6px; }
+    .actions .btn { padding: 6px 9px; font-size: .8rem; gap: 5px; }
+    .subs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .subs::-webkit-scrollbar { display: none; }
+    .subs button { white-space: nowrap; padding: 10px 10px 12px; }
   }
 
   /* 카테터 그리기 (첫 화면에서 한 번) */
@@ -257,7 +295,7 @@
   @media (prefers-reduced-motion: reduce) {
     .draw { animation: none; stroke-dashoffset: 0; }
     .bands-in { animation: none; opacity: 1; }
-    .ring, .drop { transition: none; }
+    .ring, .drop, .btn { transition: none; }
   }
 </style>
 </head>
@@ -271,8 +309,8 @@
   </div>
 </header>
 
-<section class="hero" id="home">
-  <div class="scene" data-scene="hero"></div>
+<section class="hero" id="hero">
+  <div class="scene" id="scene"></div>
   <div class="hero-in">
     <h1 id="heroTitle"></h1>
     <p class="lead" id="heroLead"></p>
@@ -281,16 +319,6 @@
 </section>
 
 <main id="page" hidden>
-  <div class="band">
-    <div class="scene" data-scene="band"></div>
-    <div class="wrap">
-      <span class="ring" id="pageIcon"></span>
-      <div>
-        <h1 id="pageTitle"></h1>
-        <p id="pageMeta"></p>
-      </div>
-    </div>
-  </div>
   <div class="wrap body">
     <div class="subs" id="subs" role="tablist"></div>
     <div id="panel"></div>
@@ -298,13 +326,6 @@
 </main>
 
 <main id="about" hidden>
-  <div class="band">
-    <div class="scene" data-scene="about"></div>
-    <div class="wrap">
-      <span class="ring"><i class="fa-solid fa-syringe" aria-hidden="true"></i></span>
-      <div><h1>포트폴리오 소개</h1></div>
-    </div>
-  </div>
   <div class="wrap about-body" id="aboutBody"></div>
 </main>
 
@@ -313,6 +334,7 @@
 <script>
 /* 데이터는 같은 폴더의 data.xlsx에서 읽습니다. 내용 수정은 엑셀에서 하세요. */
 const DATA_FILE = "data.xlsx";
+const ALL = "전체";
 
 const SUB_TABS = [
   { id: "docs", label: "절차서·양식" },
@@ -329,6 +351,13 @@ const ICONS = {
   "UDI 관리": "fa-barcode",
 };
 const iconOf = a => `<i class="fa-solid ${ICONS[a] || "fa-folder"}" aria-hidden="true"></i>`;
+const ICON = {
+  view: '<i class="fa-regular fa-eye" aria-hidden="true"></i>',
+  open: '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>',
+  down: '<i class="fa-solid fa-download" aria-hidden="true"></i>',
+  play: '<i class="fa-solid fa-play" aria-hidden="true"></i>',
+  close: '<i class="fa-solid fa-xmark" aria-hidden="true"></i>',
+};
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -336,72 +365,65 @@ const str = v => String(v ?? "").trim();
 const ext = f => (str(f).split("?")[0].split(".").pop() || "").toLowerCase();
 const toUrl = p => /^https?:\/\//i.test(p) ? p : str(p).split("/").map(encodeURIComponent).join("/");
 const emptyBox = msg => `<div class="empty">${msg}</div>`;
-const titleOf = t => esc(t) || '<span class="missing">제목 미입력</span>';
 const youtubeId = url => (String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1] || null;
 const hashOf = (a, s) => "#" + encodeURIComponent(a) + "/" + s;
+// "제조공정 FMEA (QP-71-F03)" → 문서번호와 이름으로 분리
+const splitCode = t => {
+  const m = str(t).match(/^(.*?)\s*\(((?:QP|WI|SOP)-[A-Za-z0-9-]+)\)\s*$/);
+  return m ? { name: m[1], code: m[2] } : { name: str(t), code: "" };
+};
 
 let DB = { docs: [], quiz: [], refs: [], areas: [], about: [] };
 let state = { area: null, sub: "docs" };
+let uid = 0;
 
 /* ---------- 배경 그래픽: 마이크로카테터 곡선 + 디스펜서 코일 + 파우치 점 패턴 ---------- */
-function sceneSvg(id, animate, withCath) {
-  return `
+function mountScene() {
+  const el = document.getElementById("scene");
+  el.innerHTML = `
   <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="g-${id}" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="g-bg" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#0b2034"/><stop offset=".55" stop-color="#0f3c49"/><stop offset="1" stop-color="#0f5550"/>
       </linearGradient>
-      <radialGradient id="glow-${id}" cx=".78" cy=".3" r=".55">
+      <radialGradient id="g-glow" cx=".78" cy=".3" r=".55">
         <stop offset="0" stop-color="#3fb8ae" stop-opacity=".28"/><stop offset="1" stop-color="#3fb8ae" stop-opacity="0"/>
       </radialGradient>
-      <pattern id="dots-${id}" width="22" height="22" patternUnits="userSpaceOnUse">
+      <pattern id="g-dots" width="22" height="22" patternUnits="userSpaceOnUse">
         <circle cx="2" cy="2" r="1.1" fill="#ffffff" fill-opacity=".07"/>
       </pattern>
-      <linearGradient id="tube-${id}" x1="0" y1="1" x2="1" y2="0">
+      <linearGradient id="g-tube" x1="0" y1="1" x2="1" y2="0">
         <stop offset="0" stop-color="#7fd8cf" stop-opacity=".15"/><stop offset=".6" stop-color="#8fe3da" stop-opacity=".75"/><stop offset="1" stop-color="#e9fbf8"/>
       </linearGradient>
     </defs>
-    <rect width="1600" height="900" fill="url(#g-${id})"/>
-    <rect width="1600" height="900" fill="url(#glow-${id})"/>
-    <rect width="1600" height="900" fill="url(#dots-${id})"/>
+    <rect width="1600" height="900" fill="url(#g-bg)"/>
+    <rect width="1600" height="900" fill="url(#g-glow)"/>
+    <rect width="1600" height="900" fill="url(#g-dots)"/>
     <g fill="none" stroke="#ffffff" stroke-opacity=".07">
       <circle cx="170" cy="190" r="210"/><circle cx="170" cy="190" r="228"/><circle cx="170" cy="190" r="246"/>
       <circle cx="170" cy="190" r="264"/><circle cx="170" cy="190" r="282"/>
     </g>
-    ${withCath ? `<path class="cath ${animate ? "draw" : ""}" fill="none" stroke="url(#tube-${id})" stroke-width="7" stroke-linecap="round"
+    <path class="cath draw" fill="none" stroke="url(#g-tube)" stroke-width="7" stroke-linecap="round"
       d="M-60 900 C 320 830, 540 800, 820 822 S 1290 845, 1410 660 S 1510 300, 1355 225 S 1170 295, 1250 375"/>
-    <g class="marks ${animate ? "bands-in" : ""}"></g>` : ""}
+    <g class="marks bands-in"></g>
   </svg>`;
-}
-
-function mountScenes() {
-  document.querySelectorAll("[data-scene]").forEach(el => {
-    const id = el.dataset.scene;
-    el.innerHTML = sceneSvg(id, id === "hero", id === "hero");
-    const path = el.querySelector(".cath");
-    if (!path) return;
-    const len = path.getTotalLength ? path.getTotalLength() : 3000;
-    path.style.setProperty("--len", len);
-    // 원위부 팁 근처 마커 밴드 2개
-    const g = el.querySelector(".marks");
-    if (!path.getPointAtLength) return;
-    [26, 70].forEach(d => {
-      const p = path.getPointAtLength(len - d), q = path.getPointAtLength(len - d - 1);
-      const ang = Math.atan2(p.y - q.y, p.x - q.x) * 180 / Math.PI;
-      g.insertAdjacentHTML("beforeend",
-        `<rect x="${p.x - 4}" y="${p.y - 8}" width="8" height="16" rx="2" fill="#c9d3dc" transform="rotate(${ang} ${p.x} ${p.y})"/>`);
-    });
+  const path = el.querySelector(".cath");
+  if (!path.getTotalLength) return;
+  const len = path.getTotalLength();
+  path.style.setProperty("--len", len);
+  const g = el.querySelector(".marks");
+  [26, 70].forEach(d => {    // 원위부 팁 근처 마커 밴드 2개
+    const p = path.getPointAtLength(len - d), q = path.getPointAtLength(len - d - 1);
+    const ang = Math.atan2(p.y - q.y, p.x - q.x) * 180 / Math.PI;
+    g.insertAdjacentHTML("beforeend",
+      `<rect x="${p.x - 4}" y="${p.y - 8}" width="8" height="16" rx="2" fill="#c9d3dc" transform="rotate(${ang} ${p.x} ${p.y})"/>`);
   });
 }
 
 /* ---------- 엑셀 읽기 ---------- */
-function rowsOf(wb, name) {
-  const ws = wb.Sheets[name];
-  if (!ws) return [];
-  return XLSX.utils.sheet_to_json(ws, { defval: "" })
-    .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])))
-    .filter(r => str(r["분야"]));
-}
+const cleanRows = ws => XLSX.utils.sheet_to_json(ws, { defval: "" })
+  .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])));
+const rowsOf = (wb, name) => wb.Sheets[name] ? cleanRows(wb.Sheets[name]).filter(r => str(r["분야"])) : [];
 function setting(wb, key) {
   const ws = wb.Sheets["설정"];
   if (!ws) return "";
@@ -410,8 +432,10 @@ function setting(wb, key) {
 }
 function showStatus(html) { document.getElementById("status").innerHTML = html ? `<div class="notice">${html}</div>` : ""; }
 
+let HOME = { title: "", lead: "" };
+
 async function load() {
-  mountScenes();
+  mountScene();
   if (typeof XLSX === "undefined") {
     showStatus("엑셀을 읽는 프로그램(SheetJS)을 불러오지 못했습니다. 인터넷 연결이나 회사 네트워크 차단 여부를 확인해 주세요.");
     return;
@@ -431,11 +455,8 @@ async function load() {
   const title = setting(wb, "사이트 제목");
   if (title) { document.getElementById("brand").textContent = title; document.title = title; }
   const main = setting(wb, "메인 문구");
-  const lead = setting(wb, "보조 문구");
-  document.getElementById("heroTitle").innerHTML = main
-    ? esc(main).replace(/\r?\n/g, "<br>")
-    : '<span class="missing">메인 문구 미입력 (data.xlsx › 설정)</span>';
-  document.getElementById("heroLead").textContent = lead;
+  HOME.title = main ? esc(main).replace(/\r?\n/g, "<br>") : '<span class="missing">메인 문구 미입력 (data.xlsx › 설정)</span>';
+  HOME.lead = setting(wb, "보조 문구");
 
   DB.docs = rowsOf(wb, "자료").map(r => ({
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
@@ -451,13 +472,12 @@ async function load() {
     area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
     url: str(r["URL"]), desc: str(r["설명"]),
   }));
-  DB.about = (wb.Sheets["소개"] ? XLSX.utils.sheet_to_json(wb.Sheets["소개"], { defval: "" }) : [])
-    .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])))
+  DB.about = (wb.Sheets["소개"] ? cleanRows(wb.Sheets["소개"]) : [])
     .filter(r => str(r["항목"]))
     .map(r => ({ title: str(r["항목"]), area: str(r["연결 분야"]), summary: str(r["요약"]), body: str(r["본문"]) }));
   const seen = [];
   [...DB.docs, ...DB.quiz, ...DB.refs].forEach(r => {
-    if (r.area !== "공통" && !seen.includes(r.area)) seen.push(r.area);
+    if (r.area !== "공통" && r.area !== ALL && !seen.includes(r.area)) seen.push(r.area);
   });
   DB.areas = seen;
 
@@ -469,34 +489,42 @@ async function load() {
   route();
 }
 
-/* ---------- 메뉴 ---------- */
+/* ---------- 개수 ---------- */
 function counts(area) {
+  const inArea = a => area === ALL || a === area;
   return {
-    docs: DB.docs.filter(d => d.area === area && d.kind !== "비디오").length,
-    video: DB.docs.filter(d => d.area === area && d.kind === "비디오").length,
-    quiz: DB.quiz.filter(q => q.area === area).length,
-    ref: DB.refs.filter(r => r.area === area || r.area === "공통").length,
+    docs: DB.docs.filter(d => inArea(d.area) && d.kind !== "비디오").length,
+    video: DB.docs.filter(d => inArea(d.area) && d.kind === "비디오").length,
+    quiz: DB.quiz.filter(q => inArea(q.area)).length,
+    ref: area === ALL ? DB.refs.length : DB.refs.filter(r => r.area === area || r.area === "공통").length,
   };
+}
+
+/* ---------- 상단 메뉴 ---------- */
+function dropHtml(area) {
+  const c = counts(area);
+  return `<ul class="drop">${SUB_TABS.map(t =>
+    `<li><a href="${hashOf(area, t.id)}">${t.label}<span class="n">${c[t.id]}</span></a></li>`).join("")}</ul>`;
 }
 
 function buildMenu() {
   const menu = document.getElementById("menu");
   const aboutLink = DB.about.length
     ? `<li class="m-item m-link" data-about="1"><a class="m-top" href="#about">포트폴리오 소개</a></li>` : "";
-  menu.innerHTML = aboutLink + DB.areas.map(a => {
-    const c = counts(a);
-    return `
-    <li class="m-item" data-area="${esc(a)}">
-      <button class="m-top" type="button" aria-haspopup="true">${esc(a)}</button>
-      <ul class="drop">
-        ${SUB_TABS.map(t => `<li><a href="${hashOf(a, t.id)}">${t.label}<span class="n">${c[t.id]}</span></a></li>`).join("")}
-      </ul>
-    </li>`;
-  }).join("");
+  menu.innerHTML = aboutLink
+    + DB.areas.map(a => `
+      <li class="m-item" data-area="${esc(a)}">
+        <button class="m-top" type="button" aria-haspopup="true">${esc(a)}</button>
+        ${dropHtml(a)}
+      </li>`).join("")
+    + `<li class="m-item all" data-area="${ALL}">
+        <button class="m-top" type="button" aria-haspopup="true">전체 보기</button>
+        ${dropHtml(ALL)}
+      </li>`;
 
   const nav = document.getElementById("nav");
   const burger = document.getElementById("burger");
-  const mobile = () => matchMedia("(max-width: 900px)").matches;
+  const mobile = () => matchMedia("(max-width: 1000px)").matches;
   const closeNav = () => {
     nav.classList.remove("open"); burger.setAttribute("aria-expanded", "false");
     menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
@@ -515,7 +543,7 @@ function buildMenu() {
         const was = item.classList.contains("open");
         menu.querySelectorAll(".m-item.open").forEach(m => m.classList.remove("open"));
         item.classList.toggle("open", !was);
-      } else {                 // PC: 분야 이름을 누르면 그 분야로 이동
+      } else {                 // PC: 이름을 누르면 절차서·양식으로 이동
         location.hash = hashOf(item.dataset.area, "docs");
       }
       return;
@@ -527,59 +555,221 @@ function buildMenu() {
 
 function buildShortcuts() {
   const aboutRing = DB.about.length ? `
-    <li><a href="#about">
+    <li><a href="#about" data-key="about">
       <span class="ring"><i class="fa-solid fa-syringe" aria-hidden="true"></i></span>
       <span class="label">포트폴리오 소개</span>
     </a></li>` : "";
   document.getElementById("shortcuts").innerHTML = aboutRing + DB.areas.map(a => `
-    <li><a href="${hashOf(a, "docs")}">
+    <li><a href="${hashOf(a, "docs")}" data-key="${esc(a)}">
       <span class="ring">${iconOf(a)}</span>
       <span class="label">${esc(a)}</span>
     </a></li>`).join("");
 }
 
 /* ---------- 화면 전환 ---------- */
+function setHero(compact, title, lead, activeKey) {
+  const hero = document.getElementById("hero");
+  hero.classList.toggle("compact", compact);
+  document.getElementById("heroTitle").innerHTML = title;
+  document.getElementById("heroLead").textContent = lead;
+  document.querySelectorAll("#shortcuts a").forEach(a => {
+    const on = a.dataset.key === activeKey;
+    a.classList.toggle("active", on);
+    on ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+  });
+}
+
 function route() {
   const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
-  const home = document.getElementById("home");
   const page = document.getElementById("page");
   const about = document.getElementById("about");
   document.querySelectorAll(".m-item").forEach(m => m.classList.remove("current"));
+  page.hidden = true; about.hidden = true;
+
   if (a === "about" && DB.about.length) {
-    home.hidden = true; page.hidden = true; about.hidden = false;
+    setHero(true, "포트폴리오 소개", "", "about");
     document.querySelector(".m-link")?.classList.add("current");
+    about.hidden = false;
     renderAbout();
-    window.scrollTo(0, 0);
-    return;
+  } else if (DB.areas.includes(a) || a === ALL) {
+    state.area = a;
+    state.sub = SUB_TABS.some(t => t.id === s) ? s : "docs";
+    document.querySelector(`.m-item[data-area="${CSS.escape(a)}"]`)?.classList.add("current");
+    page.hidden = false;
+    renderPage();
+  } else {
+    setHero(false, HOME.title, HOME.lead, null);
   }
-  about.hidden = true;
-  if (!DB.areas.includes(a)) {
-    home.hidden = false; page.hidden = true;
-    return;
-  }
-  state.area = a;
-  state.sub = SUB_TABS.some(t => t.id === s) ? s : "docs";
-  home.hidden = true; page.hidden = false;
-  document.querySelectorAll(".m-item").forEach(m => m.classList.toggle("current", m.dataset.area === a));
-  renderPage();
   window.scrollTo(0, 0);
 }
 
 function renderPage() {
   const c = counts(state.area);
-  document.getElementById("pageIcon").innerHTML = iconOf(state.area);
-  document.getElementById("pageTitle").textContent = state.area;
-  document.getElementById("pageMeta").textContent =
-    `문서 ${c.docs}개, 비디오 ${c.video}개, 시험 ${c.quiz}문제, 참고자료 ${c.ref}개`;
+  const isAll = state.area === ALL;
+  setHero(true,
+    isAll ? "전체 보기" : esc(state.area),
+    isAll ? `${DB.areas.length}개 분야의 자료를 한 화면에 모아 봅니다`
+          : `문서 ${c.docs}개, 비디오 ${c.video}개, 시험 ${c.quiz}문제, 참고자료 ${c.ref}개`,
+    isAll ? null : state.area);
+
   const subs = document.getElementById("subs");
   subs.innerHTML = SUB_TABS.map(t =>
     `<button role="tab" aria-selected="${t.id === state.sub}" data-sub="${t.id}" class="${t.id === state.sub ? "active" : ""}">${t.label}<span class="count">${c[t.id]}</span></button>`).join("");
   subs.onclick = e => {
     const b = e.target.closest("button");
-    if (b) history.replaceState(null, "", hashOf(state.area, b.dataset.sub)), state.sub = b.dataset.sub, renderPage();
+    if (!b) return;
+    history.replaceState(null, "", hashOf(state.area, b.dataset.sub));
+    state.sub = b.dataset.sub;
+    renderPage();
   };
+
+  const body = { docs: docsHtml, video: videoHtml, quiz: quizHtml, ref: refsHtml }[state.sub];
   const panel = document.getElementById("panel");
-  ({ docs: renderDocs, video: renderVideo, quiz: renderQuiz, ref: renderRefs })[state.sub](panel);
+  panel.innerHTML = isAll
+    ? DB.areas.map(a => `
+        <div class="area-sep">
+          <h2>${iconOf(a)} ${esc(a)}</h2>
+          <a class="btn" href="${hashOf(a, state.sub)}">이 분야만 보기</a>
+        </div>${body(a)}`).join("")
+    : body(state.area);
+}
+
+/* ---------- 목록 한 줄 ---------- */
+function docItem(d) {
+  const id = "s" + (uid++);
+  const { name, code } = splitCode(d.title);
+  const isVideo = d.kind === "비디오";
+  const pdf = ext(d.view) === "pdf" ? d.view : (ext(d.file) === "pdf" ? d.file : "");
+  const original = d.file && ext(d.file) !== "pdf" && !isVideo ? d.file : "";
+  const btns = [];
+  if (isVideo && d.file) {
+    btns.push(`<button class="btn" data-play="${esc(d.file)}" data-slot="${id}">${ICON.play} 영상 재생</button>`);
+  } else {
+    if (pdf) btns.push(
+      `<button class="btn" data-pdf="${esc(pdf)}" data-slot="${id}">${ICON.view} 미리보기</button>`,
+      `<a class="btn" href="${toUrl(pdf)}" target="_blank" rel="noopener">${ICON.open} 새 창</a>`);
+    if (original) btns.push(`<a class="btn primary" href="${toUrl(original)}" download>${ICON.down} ${esc(ext(original).toUpperCase())}</a>`);
+    if (pdf) btns.push(`<a class="btn primary" href="${toUrl(pdf)}" download>${ICON.down} PDF</a>`);
+  }
+  return `
+  <div class="item">
+    <div class="info">
+      ${code ? `<div class="code">${esc(code)}</div>` : ""}
+      <div class="name">${esc(name) || '<span class="missing">제목 미입력</span>'}</div>
+      ${!d.file && !d.view ? '<div class="desc missing">파일 경로 미입력</div>' : ""}
+    </div>
+    <div class="actions">${btns.join("")}</div>
+    <div class="slot" id="${id}"></div>
+  </div>`;
+}
+
+const GROUP_LABEL = { "비디오": "발표 영상" };
+function groupedList(items) {
+  const order = ["절차서", "양식", "부적합 사례", "비디오"];
+  const kinds = [...new Set([...order.filter(k => items.some(d => d.kind === k)), ...items.map(d => d.kind)])];
+  return kinds.map(k => `
+    <h3 class="group">${esc(GROUP_LABEL[k] || k) || "구분 미입력"}</h3>
+    <div class="list">${items.filter(d => d.kind === k).map(docItem).join("")}</div>`).join("");
+}
+
+/* ---------- 절차서·양식 (발표 영상 포함) ---------- */
+function docsHtml(area) {
+  const items = DB.docs.filter(d => d.area === area);
+  return items.length ? groupedList(items) : emptyBox("등록된 절차서·양식이 없습니다.");
+}
+
+/* ---------- 비디오 ---------- */
+function videoHtml(area) {
+  const items = DB.docs.filter(d => d.area === area && d.kind === "비디오");
+  return items.length ? `<div class="list" style="margin-top:20px">${items.map(docItem).join("")}</div>`
+                      : emptyBox("이 분야에 등록된 비디오가 없습니다.");
+}
+
+/* ---------- 참고자료 ---------- */
+function refsHtml(area) {
+  const items = DB.refs.filter(r => r.area === area || r.area === "공통");
+  if (!items.length) return emptyBox("이 분야에 등록된 참고자료가 없습니다.");
+  return `<div class="list" style="margin-top:20px">${items.map(r => {
+    const id = "s" + (uid++);
+    const yt = youtubeId(r.url);
+    return `
+    <div class="item">
+      <div class="info">
+        <div class="name">${esc(r.title) || '<span class="missing">제목 미입력</span>'}</div>
+        ${r.desc ? `<div class="desc">${esc(r.desc)}</div>` : ""}
+        ${!r.url ? '<div class="desc missing">URL 미입력</div>' : ""}
+      </div>
+      <div class="actions">
+        ${r.kind ? `<span class="tag">${esc(r.kind)}</span>` : ""}
+        ${yt ? `<button class="btn" data-play="${esc(r.url)}" data-slot="${id}">${ICON.play} 영상 재생</button>` : ""}
+        ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">${ICON.open} 열기</a>` : ""}
+      </div>
+      <div class="slot" id="${id}"></div>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+/* ---------- 시험 (결과 저장 안 함) ---------- */
+const quizOf = area => DB.quiz.filter(q => q.area === area).sort((a, b) => a.no - b.no);
+
+function quizHtml(area) {
+  const qs = quizOf(area);
+  if (!qs.length) return emptyBox("이 분야에 등록된 시험문제가 없습니다.");
+  const f = "f" + (uid++);
+  return `
+  <form class="quiz" data-area="${esc(area)}" data-f="${f}" autocomplete="off">
+    <div class="result" hidden></div>
+    ${qs.map((q, i) => `
+      <div class="q" data-i="${i}">
+        <div class="q-head"><span>${i + 1}.</span><span>${esc(q.q)}</span><span class="tag">${esc(q.type)}</span></div>
+        ${q.type === "주관식"
+          ? `<textarea name="${f}q${i}" placeholder="답을 작성하세요" aria-label="${i + 1}번 답안"></textarea>`
+          : q.options.map((o, j) => `
+            <label data-j="${j + 1}"><input type="radio" name="${f}q${i}" value="${j + 1}"><span>${j + 1}) ${esc(o)}</span></label>`).join("")}
+        <div class="feedback" hidden></div>
+      </div>`).join("")}
+    <div class="quiz-actions">
+      <button type="submit" class="btn primary"><i class="fa-solid fa-check" aria-hidden="true"></i> 채점하기</button>
+      <button type="button" class="btn" data-retry><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> 다시 풀기</button>
+    </div>
+    <div class="warn"></div>
+  </form>`;
+}
+
+function gradeQuiz(form) {
+  const qs = quizOf(form.dataset.area);
+  const f = form.dataset.f;
+  let mcTotal = 0, mcOk = 0, saTotal = 0, unanswered = 0;
+  qs.forEach((q, i) => {
+    const box = form.querySelector(`.q[data-i="${i}"]`);
+    const fb = box.querySelector(".feedback");
+    box.classList.remove("correct", "wrong", "self");
+    fb.hidden = false;
+    if (q.type === "주관식") {
+      saTotal++;
+      if (!str(form.elements[f + "q" + i].value)) unanswered++;
+      box.classList.add("self");
+      fb.innerHTML = `<b>모범답안</b>${esc(q.answer) || '<span class="missing">모범답안 미입력</span>'}`
+        + (q.explain ? `<b style="margin-top:6px">해설</b>${esc(q.explain)}` : "");
+    } else {
+      mcTotal++;
+      const sel = form.querySelector(`input[name="${f}q${i}"]:checked`);
+      if (!sel) unanswered++;
+      const ans = parseInt(q.answer, 10);
+      const ok = !!sel && +sel.value === ans;
+      if (ok) mcOk++;
+      box.classList.add(ok ? "correct" : "wrong");
+      box.querySelectorAll("label").forEach(l => l.classList.toggle("answer", +l.dataset.j === ans));
+      fb.innerHTML = `<b>${ok ? "정답입니다." : "오답입니다." + (ans ? ` 정답: ${ans}번` : " (정답 미입력)")}</b>`
+        + (q.explain ? esc(q.explain) : "");
+    }
+  });
+  const result = form.querySelector(".result");
+  result.hidden = false;
+  result.innerHTML = (mcTotal ? `<strong>객관식 ${mcTotal}문제 중 ${mcOk}문제 정답</strong>` : "")
+    + (saTotal ? `<div>주관식 ${saTotal}문제는 모범답안과 비교해 직접 확인하세요.</div>` : "");
+  form.querySelector(".warn").textContent = unanswered ? `답하지 않은 문제가 ${unanswered}개 있습니다.` : "";
+  result.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /* ---------- 포트폴리오 소개 ---------- */
@@ -591,7 +781,7 @@ function renderAbout() {
   document.getElementById("aboutBody").innerHTML = `
     ${intro.map(r => `
       <section class="about-sec">
-        <h2>${esc(r.title)}</h2>
+        <h3 class="group">${esc(r.title)}</h3>
         <div class="pick">
           <p class="summary">${esc(r.summary) || '<span class="missing">요약 미입력</span>'}</p>
           <div class="prose">${paras(r.body) || '<p class="missing">본문 미입력</p>'}</div>
@@ -599,7 +789,7 @@ function renderAbout() {
       </section>`).join("")}
     ${topics.length ? `
       <section class="about-sec">
-        <h2>학습 주제 선정 이유</h2>
+        <h3 class="group">학습 주제 선정 이유</h3>
         <div class="topics">
           ${topics.map(r => {
             const known = DB.areas.includes(r.area);
@@ -607,11 +797,11 @@ function renderAbout() {
             <article class="topic">
               <span class="ring light">${iconOf(r.area)}</span>
               <div>
-                <h3>${esc(r.title)}</h3>
+                <h4>${esc(r.title)}</h4>
                 <p class="summary">${esc(r.summary)}</p>
                 ${known ? `<div class="links">
-                  <a class="btn" href="${hashOf(r.area, "docs")}">절차서·양식 보기</a>
-                  <a class="btn" href="${hashOf(r.area, "quiz")}">시험 풀기</a>
+                  <a class="btn" href="${hashOf(r.area, "docs")}"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> 절차서·양식 보기</a>
+                  <a class="btn" href="${hashOf(r.area, "quiz")}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> 시험 풀기</a>
                 </div>` : ""}
               </div>
               <div class="prose">${paras(r.body) || '<p class="missing">본문 미입력</p>'}</div>
@@ -621,154 +811,39 @@ function renderAbout() {
       </section>` : ""}`;
 }
 
-/* ---------- 절차서·양식 ---------- */
-function docItem(d, key) {
-  const fileExt = d.file ? ext(d.file) : "";
-  const canView = d.view && ext(d.view) === "pdf";
-  return `
-  <div class="item">
-    <div>
-      <div class="title">${titleOf(d.title)}</div>
-      ${!d.file && !d.view ? '<div class="desc missing">파일 경로 미입력</div>' : ""}
-    </div>
-    <div class="actions">
-      ${fileExt ? `<span class="tag">${esc(fileExt.toUpperCase())}</span>` : ""}
-      ${canView ? `<button class="btn" data-view="${key}">미리보기</button>
-                   <a class="btn" href="${toUrl(d.view)}" target="_blank" rel="noopener">새 창</a>` : ""}
-      ${d.file ? `<a class="btn primary" href="${toUrl(d.file)}" download>다운로드</a>` : ""}
-    </div>
-    <div class="slot" id="slot-${key}"></div>
-  </div>`;
-}
-
-function renderDocs(panel) {
-  const items = DB.docs.filter(d => d.area === state.area && d.kind !== "비디오");
-  if (!items.length) { panel.innerHTML = emptyBox("등록된 절차서·양식이 없습니다."); return; }
-  const order = ["절차서", "양식", "부적합 사례"];
-  const kinds = [...new Set([...order.filter(k => items.some(d => d.kind === k)), ...items.map(d => d.kind)])];
-  panel.innerHTML = kinds.map(k => `
-    <h2>${esc(k) || "구분 미입력"}</h2>
-    <div class="list">${items.map((d, i) => d.kind === k ? docItem(d, i) : "").join("")}</div>`).join("");
-  panel.onclick = e => {
-    const b = e.target.closest("[data-view]");
-    if (!b) return;
-    const slot = document.getElementById("slot-" + b.dataset.view);
-    if (slot.innerHTML) { slot.innerHTML = ""; b.textContent = "미리보기"; }
-    else {
-      slot.innerHTML = `<iframe class="pdf" src="${toUrl(items[b.dataset.view].view)}" title="PDF 미리보기"></iframe>`;
-      b.textContent = "닫기";
-    }
-  };
-}
-
-/* ---------- 비디오 ---------- */
+/* ---------- 버튼 동작 (미리보기·영상·시험) ---------- */
 function playerHtml(src) {
   const yt = youtubeId(src);
-  if (yt) return `<div class="player"><iframe src="https://www.youtube.com/embed/${yt}" title="동영상" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
-  return `<div class="player"><video src="${toUrl(src)}" controls preload="metadata"></video></div>`;
+  if (yt) return `<div class="player"><iframe src="https://www.youtube.com/embed/${yt}?autoplay=1" title="동영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+  return `<div class="player"><video src="${toUrl(src)}" controls autoplay preload="metadata"></video></div>`;
 }
 
-function renderVideo(panel) {
-  const items = DB.docs.filter(d => d.area === state.area && d.kind === "비디오");
-  if (!items.length) { panel.innerHTML = emptyBox("이 분야에 등록된 비디오가 없습니다."); return; }
-  panel.innerHTML = `<div class="list">${items.map(v => `
-    <div class="item">
-      <div class="title">${titleOf(v.title)}</div>
-      <div class="slot">${v.file ? playerHtml(v.file) : '<div class="desc missing">파일 경로 미입력</div>'}</div>
-    </div>`).join("")}</div>`;
-}
-
-/* ---------- 시험 (결과 저장 안 함) ---------- */
-function renderQuiz(panel) {
-  const qs = DB.quiz.filter(q => q.area === state.area).sort((a, b) => a.no - b.no);
-  if (!qs.length) { panel.innerHTML = emptyBox("이 분야에 등록된 시험문제가 없습니다."); return; }
-
-  panel.innerHTML = `
-    <div class="result" id="result"></div>
-    <form id="quizForm" autocomplete="off">
-      ${qs.map((q, i) => `
-        <div class="q" id="q${i}">
-          <div class="q-head"><span>${i + 1}.</span><span>${esc(q.q)}</span><span class="tag">${esc(q.type)}</span></div>
-          ${q.type === "주관식"
-            ? `<textarea name="q${i}" placeholder="답을 작성하세요" aria-label="${i + 1}번 답안"></textarea>`
-            : q.options.map((o, j) => `
-              <label data-j="${j + 1}"><input type="radio" name="q${i}" value="${j + 1}"><span>${j + 1}) ${esc(o)}</span></label>`).join("")}
-          <div class="feedback" hidden></div>
-        </div>`).join("")}
-      <div class="quiz-actions">
-        <button type="submit" class="btn primary">채점하기</button>
-        <button type="button" class="btn" id="retry">다시 풀기</button>
-      </div>
-      <div class="warn" id="warn"></div>
-    </form>`;
-
-  const form = document.getElementById("quizForm");
-  form.onsubmit = e => {
-    e.preventDefault();
-    let mcTotal = 0, mcOk = 0, saTotal = 0, unanswered = 0;
-    qs.forEach((q, i) => {
-      const box = document.getElementById("q" + i);
-      const fb = box.querySelector(".feedback");
-      box.classList.remove("correct", "wrong", "self");
-      fb.hidden = false;
-      if (q.type === "주관식") {
-        saTotal++;
-        if (!str(form.elements["q" + i].value)) unanswered++;
-        box.classList.add("self");
-        fb.innerHTML = `<b>모범답안</b>${esc(q.answer) || '<span class="missing">모범답안 미입력</span>'}`
-          + (q.explain ? `<b style="margin-top:6px">해설</b>${esc(q.explain)}` : "");
-      } else {
-        mcTotal++;
-        const sel = form.querySelector(`input[name="q${i}"]:checked`);
-        if (!sel) unanswered++;
-        const ans = parseInt(q.answer, 10);
-        const ok = !!sel && +sel.value === ans;
-        if (ok) mcOk++;
-        box.classList.add(ok ? "correct" : "wrong");
-        box.querySelectorAll("label").forEach(l => l.classList.toggle("answer", +l.dataset.j === ans));
-        fb.innerHTML = `<b>${ok ? "정답입니다." : "오답입니다." + (ans ? ` 정답: ${ans}번` : " (정답 미입력)")}</b>`
-          + (q.explain ? esc(q.explain) : "");
-      }
-    });
-    const result = document.getElementById("result");
-    result.style.display = "block";
-    result.innerHTML = (mcTotal ? `<strong>객관식 ${mcTotal}문제 중 ${mcOk}문제 정답</strong>` : "")
-      + (saTotal ? `<div>주관식 ${saTotal}문제는 모범답안과 비교해 직접 확인하세요.</div>` : "");
-    document.getElementById("warn").textContent = unanswered ? `답하지 않은 문제가 ${unanswered}개 있습니다.` : "";
-    result.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-  document.getElementById("retry").onclick = () => { renderQuiz(panel); window.scrollTo({ top: 0, behavior: "smooth" }); };
-}
-
-/* ---------- 참고자료 ---------- */
-function renderRefs(panel) {
-  const items = DB.refs.filter(r => r.area === state.area || r.area === "공통");
-  if (!items.length) { panel.innerHTML = emptyBox("이 분야에 등록된 참고자료가 없습니다."); return; }
-  panel.innerHTML = `<div class="list">${items.map((r, i) => {
-    const yt = youtubeId(r.url);
-    return `
-    <div class="item">
-      <div>
-        <div class="title">${titleOf(r.title)}</div>
-        ${r.desc ? `<div class="desc">${esc(r.desc)}</div>` : ""}
-        ${!r.url ? '<div class="desc missing">URL 미입력</div>' : ""}
-      </div>
-      <div class="actions">
-        ${r.kind ? `<span class="tag">${esc(r.kind)}</span>` : ""}
-        ${yt ? `<button class="btn" data-play="${i}">재생</button>` : ""}
-        ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">열기</a>` : ""}
-      </div>
-      <div class="slot" id="ref-${i}"></div>
-    </div>`;
-  }).join("")}</div>`;
-  panel.onclick = e => {
-    const b = e.target.closest("[data-play]");
-    if (!b) return;
-    const slot = document.getElementById("ref-" + b.dataset.play);
-    if (slot.innerHTML) { slot.innerHTML = ""; b.textContent = "재생"; }
-    else { slot.innerHTML = playerHtml(items[b.dataset.play].url); b.textContent = "닫기"; }
-  };
-}
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-pdf], [data-play]");
+  if (btn) {
+    const slot = document.getElementById(btn.dataset.slot);
+    const isPdf = !!btn.dataset.pdf;
+    if (!btn.dataset.label) btn.dataset.label = btn.innerHTML;
+    if (slot.innerHTML) {
+      slot.innerHTML = ""; btn.innerHTML = btn.dataset.label; btn.classList.remove("on");
+    } else {
+      slot.innerHTML = isPdf
+        ? `<iframe class="pdf" src="${toUrl(btn.dataset.pdf)}" title="PDF 미리보기"></iframe>`
+        : playerHtml(btn.dataset.play);
+      btn.innerHTML = `${ICON.close} 닫기`; btn.classList.add("on");
+    }
+    return;
+  }
+  const retry = e.target.closest("[data-retry]");
+  if (retry) {
+    const form = retry.closest("form.quiz");
+    form.outerHTML = quizHtml(form.dataset.area);
+  }
+});
+document.addEventListener("submit", e => {
+  const form = e.target.closest("form.quiz");
+  if (form) { e.preventDefault(); gradeQuiz(form); }
+});
 
 load();
 </script>
