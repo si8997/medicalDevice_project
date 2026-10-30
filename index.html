@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>절차서 교육</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1f2328; --sub: #656d76; --line: #d8dee4;
+    --accent: #1f6feb; --accent-soft: #e7f0fd;
+    --ok: #1a7f37; --ok-soft: #e6f4ea; --bad: #cf222e; --bad-soft: #fdecee;
+    --self: #9a6700; --self-soft: #fff8e5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 20px 16px 0; }
+  h1 { margin: 0 0 12px; font-size: 1.35rem; }
+  .missing { color: var(--sub); font-style: italic; font-weight: normal; }
+
+  /* 분야 탭 */
+  .areas { display: flex; gap: 4px; overflow-x: auto; }
+  .areas button {
+    border: none; background: none; padding: 10px 14px; font-size: 1rem; color: var(--sub);
+    cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; font-family: inherit;
+  }
+  .areas button:hover { color: var(--text); }
+  .areas button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  main { padding: 20px 16px 60px; }
+
+  /* 하위 탭 */
+  .subs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .subs button {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 6px 14px; border-radius: 999px; font-size: .95rem; cursor: pointer; font-family: inherit;
+  }
+  .subs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .subs .count { margin-left: 4px; opacity: .7; font-size: .85em; }
+
+  h2 { font-size: 1rem; margin: 22px 0 10px; color: var(--sub); }
+  h2:first-child { margin-top: 0; }
+
+  .empty {
+    background: var(--card); border: 1px dashed var(--line); border-radius: 10px;
+    padding: 36px 20px; text-align: center; color: var(--sub);
+  }
+  .notice {
+    background: var(--bad-soft); border: 1px solid var(--bad); color: var(--bad);
+    border-radius: 10px; padding: 16px 18px;
+  }
+
+  .list { display: grid; gap: 10px; }
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .item .title { font-weight: 600; }
+  .item .desc { color: var(--sub); font-size: .9rem; }
+  .tag {
+    font-size: .75rem; padding: 2px 8px; border-radius: 6px;
+    background: var(--bg); color: var(--sub); border: 1px solid var(--line);
+  }
+  .actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 6px 12px; border-radius: 6px; font-size: .9rem; cursor: pointer;
+    text-decoration: none; font-family: inherit; display: inline-block;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: .9; color: #fff; }
+  .slot { flex-basis: 100%; }
+  .slot:empty { display: none; }
+  .pdf { width: 100%; height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .player { background: #000; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; }
+  .player video, .player iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  /* 시험 */
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .q.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .q.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .q.self { border-color: var(--self); background: var(--self-soft); }
+  .q-head { font-weight: 600; margin-bottom: 10px; display: flex; gap: 8px; align-items: baseline; }
+  .q label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .q label:hover { background: rgba(0,0,0,.04); }
+  .q label.answer { font-weight: 600; color: var(--ok); }
+  .q input[type=radio] { margin-top: 6px; }
+  .q textarea {
+    width: 100%; min-height: 90px; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+    font: inherit; resize: vertical; background: #fff;
+  }
+  .feedback { margin-top: 10px; font-size: .92rem; white-space: pre-wrap; }
+  .feedback b { display: block; }
+  .result {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 16px; display: none;
+  }
+  .result strong { font-size: 1.1rem; }
+  .quiz-actions { display: flex; gap: 8px; }
+  .warn { color: var(--bad); font-size: .9rem; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1 id="siteTitle"></h1>
+    <nav class="areas" id="areas"></nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" id="content">
+    <div class="empty">자료를 불러오는 중입니다…</div>
+  </div>
+</main>
+
+<script>
+/* 데이터는 같은 폴더의 data.xlsx에서 읽습니다. 내용 수정은 엑셀에서 하세요. */
+const DATA_FILE = "data.xlsx";
+
+const SUB_TABS = [
+  { id: "docs", label: "절차서·양식" },
+  { id: "video", label: "비디오" },
+  { id: "quiz", label: "시험" },
+  { id: "ref", label: "참고자료" },
+];
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const str = v => String(v ?? "").trim();
+const ext = f => (str(f).split("?")[0].split(".").pop() || "").toLowerCase();
+// 한글·공백·괄호·+ 등이 들어간 경로를 안전한 주소로 변환
+const toUrl = p => /^https?:\/\//i.test(p) ? p : str(p).split("/").map(encodeURIComponent).join("/");
+const emptyBox = msg => `<div class="empty">${msg}</div>`;
+const titleOf = t => esc(t) || '<span class="missing">제목 미입력</span>';
+const youtubeId = url => (String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/) || [])[1] || null;
+
+let DB = { docs: [], quiz: [], refs: [], areas: [] };
+let state = { area: null, sub: "docs" };
+
+/* ---------- 엑셀 읽기 ---------- */
+function rowsOf(wb, name) {
+  const ws = wb.Sheets[name];
+  if (!ws) return [];
+  return XLSX.utils.sheet_to_json(ws, { defval: "" })
+    .map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [str(k), v])))
+    .filter(r => str(r["분야"]));
+}
+
+async function load() {
+  const content = document.getElementById("content");
+  if (typeof XLSX === "undefined") {
+    content.innerHTML = `<div class="notice">엑셀을 읽는 프로그램(SheetJS)을 불러오지 못했습니다. 인터넷 연결이나 회사 네트워크 차단 여부를 확인해 주세요.</div>`;
+    return;
+  }
+  let wb;
+  try {
+    const res = await fetch(DATA_FILE + "?v=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
+  } catch (e) {
+    content.innerHTML = location.protocol === "file:"
+      ? `<div class="notice">PC에서 파일을 직접 열면 브라우저 보안 때문에 data.xlsx를 읽을 수 없습니다. GitHub Pages 주소로 접속해 주세요.</div>`
+      : `<div class="notice">data.xlsx를 불러오지 못했습니다. index.html과 같은 위치에 data.xlsx가 있는지 확인해 주세요.</div>`;
+    return;
+  }
+
+  // 설정
+  const setting = (XLSX.utils.sheet_to_json(wb.Sheets["설정"] || {}, { header: 1, defval: "" }) || [])
+    .find(r => str(r[0]) === "사이트 제목");
+  const title = setting ? str(setting[1]) : "";
+  const titleEl = document.getElementById("siteTitle");
+  if (title) { titleEl.textContent = title; document.title = title; }
+  else titleEl.innerHTML = '<span class="missing">사이트 제목 미입력 (data.xlsx › 설정 시트)</span>';
+
+  DB.docs = rowsOf(wb, "자료").map(r => ({
+    area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
+    view: str(r["보기파일(PDF)"]), file: str(r["원본파일"]),
+  }));
+  DB.quiz = rowsOf(wb, "시험문제").map((r, i) => ({
+    area: str(r["분야"]), no: Number(r["번호"]) || 1e6 + i, type: str(r["유형"]) || "객관식",
+    q: str(r["문제"]),
+    options: ["보기1", "보기2", "보기3", "보기4"].map(k => str(r[k])).filter(Boolean),
+    answer: str(r["정답"]), explain: str(r["해설"]),
+  }));
+  DB.refs = rowsOf(wb, "참고자료").map(r => ({
+    area: str(r["분야"]), kind: str(r["구분"]), title: str(r["제목"]),
+    url: str(r["URL"]), desc: str(r["설명"]),
+  }));
+
+  // 분야 순서: 자료 → 시험문제 → 참고자료 순으로 처음 나온 순서 ("공통"은 탭 없이 모든 분야에 표시)
+  const seen = [];
+  [...DB.docs, ...DB.quiz, ...DB.refs].forEach(r => {
+    if (r.area !== "공통" && !seen.includes(r.area)) seen.push(r.area);
+  });
+  DB.areas = seen;
+
+  if (!DB.areas.length) {
+    content.innerHTML = emptyBox("data.xlsx에 등록된 자료가 없습니다.");
+    return;
+  }
+
+  const [a, s] = decodeURIComponent(location.hash.slice(1)).split("/");
+  state.area = DB.areas.includes(a) ? a : DB.areas[0];
+  state.sub = SUB_TABS.some(t => t.id === s) ? s : "docs";
+  renderAreas();
+  render();
+}
+
+/* ---------- 탭 ---------- */
+function renderAreas() {
+  const nav = document.getElementById("areas");
+  nav.innerHTML = DB.areas.map(a =>
+    `<button data-area="${esc(a)}" class="${a === state.area ? "active" : ""}">${esc(a)}</button>`).join("");
+  nav.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    state.area = b.dataset.area;
+    state.sub = "docs";
+    renderAreas();
+    render();
+  };
+}
+
+function counts(area) {
+  return {
+    docs: DB.docs.filter(d => d.area === area && d.kind !== "비디오").length,
+    video: DB.docs.filter(d => d.area === area && d.kind === "비디오").length,
+    quiz: DB.quiz.filter(q => q.area === area).length,
+    ref: DB.refs.filter(r => r.area === area || r.area === "공통").length,
+  };
+}
+
+function render() {
+  history.replaceState(null, "", "#" + encodeURIComponent(state.area) + "/" + state.sub);
+  const c = counts(state.area);
+  const content = document.getElementById("content");
+  content.innerHTML = `
+    <div class="subs" id="subs">
+      ${SUB_TABS.map(t => `<button data-sub="${t.id}" class="${t.id === state.sub ? "active" : ""}">${t.label}<span class="count">${c[t.id]}</span></button>`).join("")}
+    </div>
+    <div id="panel"></div>`;
+  document.getElementById("subs").onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    state.sub = b.dataset.sub;
+    render();
+  };
+  const panel = document.getElementById("panel");
+  ({ docs: renderDocs, video: renderVideo, quiz: renderQuiz, ref: renderRefs })[state.sub](panel);
+}
+
+/* ---------- 절차서·양식 ---------- */
+function docItem(d, key) {
+  const fileExt = d.file ? ext(d.file) : "";
+  const canView = d.view && ext(d.view) === "pdf";
+  return `
+  <div class="item">
+    <div>
+      <div class="title">${titleOf(d.title)}</div>
+      ${!d.file && !d.view ? '<div class="desc missing">파일 경로 미입력</div>' : ""}
+    </div>
+    <div class="actions">
+      ${fileExt ? `<span class="tag">${esc(fileExt.toUpperCase())}</span>` : ""}
+      ${canView ? `<button class="btn" data-view="${key}">미리보기</button>
+                   <a class="btn" href="${toUrl(d.view)}" target="_blank" rel="noopener">새 창</a>` : ""}
+      ${d.file ? `<a class="btn primary" href="${toUrl(d.file)}" download>다운로드</a>` : ""}
+    </div>
+    <div class="slot" id="slot-${key}"></div>
+  </div>`;
+}
+
+function renderDocs(panel) {
+  const items = DB.docs.filter(d => d.area === state.area && d.kind !== "비디오");
+  if (!items.length) { panel.innerHTML = emptyBox("등록된 절차서·양식이 없습니다."); return; }
+  const order = ["절차서", "양식", "부적합 사례"];
+  const kinds = [...new Set([...order.filter(k => items.some(d => d.kind === k)),
+                             ...items.map(d => d.kind)])];
+  panel.innerHTML = kinds.map(k => `
+    <h2>${esc(k) || "구분 미입력"}</h2>
+    <div class="list">${items.map((d, i) => d.kind === k ? docItem(d, i) : "").join("")}</div>`).join("");
+  panel.onclick = e => {
+    const b = e.target.closest("[data-view]");
+    if (!b) return;
+    const slot = document.getElementById("slot-" + b.dataset.view);
+    if (slot.innerHTML) { slot.innerHTML = ""; b.textContent = "미리보기"; }
+    else {
+      slot.innerHTML = `<iframe class="pdf" src="${toUrl(items[b.dataset.view].view)}"></iframe>`;
+      b.textContent = "닫기";
+    }
+  };
+}
+
+/* ---------- 비디오 ---------- */
+function playerHtml(src) {
+  const yt = youtubeId(src);
+  if (yt) return `<div class="player"><iframe src="https://www.youtube.com/embed/${yt}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+  return `<div class="player"><video src="${toUrl(src)}" controls preload="metadata"></video></div>`;
+}
+
+function renderVideo(panel) {
+  const items = DB.docs.filter(d => d.area === state.area && d.kind === "비디오");
+  if (!items.length) { panel.innerHTML = emptyBox("이 분야에 등록된 비디오가 없습니다."); return; }
+  panel.innerHTML = `<div class="list">${items.map(v => `
+    <div class="item">
+      <div class="title">${titleOf(v.title)}</div>
+      <div class="slot">${v.file ? playerHtml(v.file) : '<div class="desc missing">파일 경로 미입력</div>'}</div>
+    </div>`).join("")}</div>`;
+}
+
+/* ---------- 시험 (결과 저장 안 함) ---------- */
+function renderQuiz(panel) {
+  const qs = DB.quiz.filter(q => q.area === state.area).sort((a, b) => a.no - b.no);
+  if (!qs.length) { panel.innerHTML = emptyBox("이 분야에 등록된 시험문제가 없습니다."); return; }
+
+  panel.innerHTML = `
+    <div class="result" id="result"></div>
+    <form id="quizForm" autocomplete="off">
+      ${qs.map((q, i) => `
+        <div class="q" id="q${i}">
+          <div class="q-head"><span>${i + 1}.</span><span>${esc(q.q)}</span><span class="tag">${esc(q.type)}</span></div>
+          ${q.type === "주관식"
+            ? `<textarea name="q${i}" placeholder="답을 작성하세요"></textarea>`
+            : q.options.map((o, j) => `
+              <label data-j="${j + 1}"><input type="radio" name="q${i}" value="${j + 1}"><span>${j + 1}) ${esc(o)}</span></label>`).join("")}
+          <div class="feedback" hidden></div>
+        </div>`).join("")}
+      <div class="quiz-actions">
+        <button type="submit" class="btn primary">채점하기</button>
+        <button type="button" class="btn" id="retry">다시 풀기</button>
+      </div>
+      <div class="warn" id="warn"></div>
+    </form>`;
+
+  const form = document.getElementById("quizForm");
+  form.onsubmit = e => {
+    e.preventDefault();
+    let mcTotal = 0, mcOk = 0, saTotal = 0, unanswered = 0;
+    qs.forEach((q, i) => {
+      const box = document.getElementById("q" + i);
+      const fb = box.querySelector(".feedback");
+      box.classList.remove("correct", "wrong", "self");
+      fb.hidden = false;
+      if (q.type === "주관식") {
+        saTotal++;
+        if (!str(form.elements["q" + i].value)) unanswered++;
+        box.classList.add("self");
+        fb.innerHTML = `<b>모범답안</b>${esc(q.answer) || '<span class="missing">모범답안 미입력</span>'}`
+          + (q.explain ? `<b style="margin-top:6px">해설</b>${esc(q.explain)}` : "");
+      } else {
+        mcTotal++;
+        const sel = form.querySelector(`input[name="q${i}"]:checked`);
+        if (!sel) unanswered++;
+        const ans = parseInt(q.answer, 10);
+        const ok = !!sel && +sel.value === ans;
+        if (ok) mcOk++;
+        box.classList.add(ok ? "correct" : "wrong");
+        box.querySelectorAll("label").forEach(l => l.classList.toggle("answer", +l.dataset.j === ans));
+        fb.innerHTML = `<b>${ok ? "정답입니다." : "오답입니다." + (ans ? ` 정답: ${ans}번` : " (정답 미입력)")}</b>`
+          + (q.explain ? esc(q.explain) : "");
+      }
+    });
+    const result = document.getElementById("result");
+    result.style.display = "block";
+    result.innerHTML = (mcTotal ? `<strong>객관식 ${mcTotal}문제 중 ${mcOk}문제 정답</strong>` : "")
+      + (saTotal ? `<div>주관식 ${saTotal}문제는 모범답안과 비교해 직접 확인하세요.</div>` : "");
+    document.getElementById("warn").textContent = unanswered ? `답하지 않은 문제가 ${unanswered}개 있습니다.` : "";
+    result.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  document.getElementById("retry").onclick = () => { renderQuiz(panel); window.scrollTo({ top: 0, behavior: "smooth" }); };
+}
+
+/* ---------- 참고자료 ---------- */
+function renderRefs(panel) {
+  const items = DB.refs.filter(r => r.area === state.area || r.area === "공통");
+  if (!items.length) { panel.innerHTML = emptyBox("이 분야에 등록된 참고자료가 없습니다."); return; }
+  panel.innerHTML = `<div class="list">${items.map((r, i) => {
+    const yt = youtubeId(r.url);
+    return `
+    <div class="item">
+      <div>
+        <div class="title">${titleOf(r.title)}</div>
+        ${r.desc ? `<div class="desc">${esc(r.desc)}</div>` : ""}
+        ${!r.url ? '<div class="desc missing">URL 미입력</div>' : ""}
+      </div>
+      <div class="actions">
+        ${r.kind ? `<span class="tag">${esc(r.kind)}</span>` : ""}
+        ${yt ? `<button class="btn" data-play="${i}">재생</button>` : ""}
+        ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">열기</a>` : ""}
+      </div>
+      <div class="slot" id="ref-${i}"></div>
+    </div>`;
+  }).join("")}</div>`;
+  panel.onclick = e => {
+    const b = e.target.closest("[data-play]");
+    if (!b) return;
+    const slot = document.getElementById("ref-" + b.dataset.play);
+    if (slot.innerHTML) { slot.innerHTML = ""; b.textContent = "재생"; }
+    else { slot.innerHTML = playerHtml(items[b.dataset.play].url); b.textContent = "닫기"; }
+  };
+}
+
+load();
+</script>
+</body>
+</html>
